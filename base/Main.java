@@ -1,36 +1,60 @@
 import java.util.*;
+import java.util.stream.Collectors;
 import java.io.*;
+import java.util.regex.*;
 
 public class Main {
     public static void main(String[] args) throws IOException {
-        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-        
-        int n = Integer.parseInt(br.readLine());
-        String line = null;
-        Set<String> words = new HashSet<>();
-        boolean hontai = true;
-        for(int i = 0; i < n; i++) {
-            String newLine = br.readLine();
-            boolean lose = false;
-            if(line != null) {
-                if(line.charAt(line.length() - 1) != newLine.charAt(0)) {
-                    lose = true;
-                };
+        Scanner sc = new Scanner(System.in);
+        int n = sc.nextInt(), q = sc.nextInt();
+        UnionFind unionFind = new UnionFind(n + 1);
+
+        while(q-- > 0) {
+            int p = sc.nextInt(), a = sc.nextInt(), b = sc.nextInt();
+            if(p == 0) {
+                unionFind.unite(a, b);
+            } else {
+                System.out.println(unionFind.same(a, b) ? "Yes" : "No");
             }
-            if(words.contains(newLine)) lose = true;
-            if(lose) {
-                if(hontai) {
-                    System.out.print("LOSE");
-                } else {
-                    System.out.print("WIN");
-                }
-                return;
-            }
-            words.add(newLine);
-            line = newLine;
-            hontai = !hontai;
         }
-        System.out.print("DRAW");
+        sc.close();
+    }
+
+}
+
+
+class UnionFind {
+    public int[] parents, counts;
+    public UnionFind(int length) {
+        this.parents = new int[length];
+        this.counts = new int[length];
+        for(int i = 0; i < length; i++) {
+            parents[i] = i;
+        }
+        Arrays.fill(counts, 1);
+    }
+
+    public int root(int x) {
+        int tmp = x;
+        while(tmp != parents[tmp]) {
+            tmp = parents[tmp];
+        }
+        return parents[x] = tmp;
+    }
+
+    public void unite(int x, int y) {
+        int rootX = root(x);
+        int rootY = root(y);
+        if (rootX == rootY) return;
+        counts[rootY] += counts[rootX];
+        parents[rootX] = rootY;
     }
     
+    public boolean same(int x, int y) {
+        return root(x) == root(y);
+    }
+
+    public int count(int x) {
+        return counts[root(x)];
+    }
 }
