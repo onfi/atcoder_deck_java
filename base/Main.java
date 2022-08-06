@@ -153,6 +153,38 @@ class FScanner {
         return new java.math.BigDecimal(next());
     }
 
+    public java.util.stream.IntStream nextIntStream(int n) {
+        return java.util.stream.IntStream.range(0, n).map(i -> nextInt());
+    }
+
+    public java.util.stream.LongStream nextLongStream(int n) {
+        return java.util.stream.LongStream.range(0L, (long) n).map(i -> nextLong());
+    }
+
+    public java.util.stream.Stream<String> nextStream(int n) {
+        return java.util.stream.IntStream.range(0, n).mapToObj(i -> next());
+    }
+
+    public java.util.stream.Stream<int[]> nextIntArrayStream(int n, int arraySize) {
+        return java.util.stream.IntStream.range(0, n).mapToObj(_i -> {
+            int[] ary = new int[arraySize];
+            for (int i = 0; i < arraySize; i++) {
+                ary[i] = nextInt();
+            }
+            return ary;
+        });
+    }
+
+    public java.util.stream.Stream<long[]> nextLongArrayStream(int n, int arraySize) {
+        return java.util.stream.IntStream.range(0, n).mapToObj(_i -> {
+            long[] ary = new long[arraySize];
+            for (int i = 0; i < arraySize; i++) {
+                ary[i] = nextLong();
+            }
+            return ary;
+        });
+    }
+
     public boolean close() {
         return true;
     }
