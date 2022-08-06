@@ -5,36 +5,35 @@ import java.util.regex.*;
 public class Main {
     public static void main(String[] args) {
         FScanner sc = new FScanner(System.in);
-        PrintWriter out = new PrintWriter(System.out);
+        FWriter out = new FWriter(System.out);
         solve(sc, out);
         out.flush();
         sc.close();
     }
-    
-    public static void solve(FScanner sc, PrintWriter out) {
+
+    public static void solve(FScanner sc, FWriter out) {
         int n = sc.nextInt();
         int cnt = 0;
         int a = 0, b = 0;
         Pattern p = Pattern.compile("AB");
-        while(n-- > 0) {
+        while (n-- > 0) {
             String s = sc.next();
             Matcher m = p.matcher(s);
             int index = 0;
-            while(m.find(index)) {
+            while (m.find(index)) {
                 cnt++;
                 index = m.end();
             }
-            if(s.startsWith("B")) {
+            if (s.startsWith("B")) {
                 b++;
             }
-            if(s.endsWith("A")) {
+            if (s.endsWith("A")) {
                 a++;
             }
         }
-        System.out.println(cnt + Math.min(Math.min(a, b), n - 1));
+        out.println(cnt + Math.min(Math.min(a, b), n - 1));
     }
 }
-
 
 class FScanner {
     private InputStream in;
@@ -146,7 +145,185 @@ class FScanner {
         return minus ? -n : n;
     }
 
+    public double nextDouble() {
+        return Double.parseDouble(next());
+    }
+
+    public java.math.BigDecimal nextDecimal() {
+        return new java.math.BigDecimal(next());
+    }
+
     public boolean close() {
         return true;
+    }
+}
+
+class FWriter {
+    OutputStream out;
+
+    byte[] buf = new byte[1 << 16];
+    byte[] ibuf = new byte[20];
+
+    int tail = 0;
+
+    final byte SP = (byte) ' ', LF = (byte) '\n', HYPHEN = (byte) '-';
+
+    FWriter(OutputStream out) {
+        this.out = out;
+    }
+
+    void flush() {
+        try {
+            out.write(buf, 0, tail);
+            tail = 0;
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    void write(byte b) {
+        buf[tail++] = b;
+        if (tail == buf.length) {
+            flush();
+        }
+    }
+
+    void write(byte[] b, int off, int len) {
+        for (int i = off; i < off + len; i++) {
+            write(b[i]);
+        }
+    }
+
+    void println() {
+        write(LF);
+    }
+
+    void print(char c) {
+        write((byte) c);
+    }
+
+    void println(char c) {
+        print(c);
+        println();
+    }
+
+    void print(int n) {
+        if (n < 0) {
+            n = -n;
+            write(HYPHEN);
+        }
+
+        int i = ibuf.length;
+        do {
+            ibuf[--i] = (byte) (n % 10 + '0');
+            n /= 10;
+        } while (n > 0);
+
+        write(ibuf, i, ibuf.length - i);
+    }
+
+    void println(int n) {
+        print(n);
+        println();
+    }
+
+    void print(long n) {
+        if (n < 0) {
+            n = -n;
+            write(HYPHEN);
+        }
+
+        int i = ibuf.length;
+        do {
+            ibuf[--i] = (byte) (n % 10 + '0');
+            n /= 10;
+        } while (n > 0);
+
+        write(ibuf, i, ibuf.length - i);
+    }
+
+    void println(long n) {
+        print(n);
+        println();
+    }
+
+    void print(String s) {
+        byte[] b = s.getBytes();
+        write(b, 0, b.length);
+    }
+
+    void println(String s) {
+        print(s);
+        println();
+    }
+
+    void print(int[] a) {
+        for (int i = 0; i < a.length; i++) {
+            write(SP);
+            print(a[i]);
+        }
+    }
+
+    void println(int[] a) {
+        print(a);
+        println();
+    }
+
+    void print(char[] s, int from, int to) {
+        for (int i = from; i < to && s[i] != '\0'; i++) {
+            print(s[i]);
+        }
+    }
+
+    void print(char[] s) {
+        print(s, 0, s.length);
+    }
+
+    void println(char[] s, int from, int to) {
+        print(s, from, to);
+        println();
+    }
+
+    void println(char[] s) {
+        println(s, 0, s.length);
+    }
+
+    void print(double n, int accuracy) {
+        long longN = (long) n;
+        print(longN);
+        n -= (long) n;
+
+        write((byte) '.');
+        for (int j = 0; j < accuracy; j++) {
+            n *= 10;
+            int digit = (int) n;
+            write((byte) (digit + '0'));
+            n -= digit;
+        }
+    }
+
+    void print(double n) {
+        print(n, 10);
+    }
+
+    void println(double n) {
+        print(n);
+        println();
+    }
+
+    void println(double n, int accuracy) {
+        print(n, accuracy);
+        println();
+    }
+
+    void print(Object o) {
+        if (o != null) {
+            print(o.toString());
+        }
+    }
+
+    void println(Object o) {
+        print(o);
+        println(o);
     }
 }
