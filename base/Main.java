@@ -2,16 +2,8 @@ import java.util.*;
 import java.io.*;
 import java.util.regex.*;
 
-public class Main {
-    public static void main(String[] args) {
-        FScanner sc = new FScanner(System.in);
-        FWriter out = new FWriter(System.out);
-        solve(sc, out);
-        out.flush();
-        sc.close();
-    }
-
-    public static void solve(FScanner sc, FWriter out) {
+class Solver {
+    static void solve(FScanner sc, FWriter out) {
         int n = sc.nextInt();
         int cnt = 0;
         int a = 0, b = 0;
@@ -36,6 +28,20 @@ public class Main {
 }
 
 //common
+public class Main {
+    public static void main(String[] args) {
+        FScanner sc = new FScanner(System.in);
+        FWriter out = new FWriter(System.out);
+        try {
+            Solver.solve(sc, out);
+        } catch (Throwable e) {
+            out.println(e);
+        }
+        out.flush();
+        sc.close();
+    }
+}
+
 class FScanner {
     private InputStream in;
     private final byte[] buffer = new byte[1024];

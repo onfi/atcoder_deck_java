@@ -1,16 +1,8 @@
 import java.util.*;
 import java.io.*;
 
-public class Main {
-    public static void main(String[] args) {
-        FScanner sc = new FScanner(System.in);
-        PrintWriter out = new PrintWriter(System.out);
-        solve(sc, out);
-        out.flush();
-        sc.close();
-    }
-
-    public static void solve(FScanner sc, PrintWriter out) {
+class Solver {
+    static void solve(FScanner sc, FWriter out) {
         sc.nextLongStream(sc.nextInt())
                 .mapToObj(x -> Prime.factorize(x).entrySet().stream()
                         .map(entry -> entry.getKey() + ":" + entry.getValue())
@@ -71,6 +63,20 @@ class Prime {
 }
 
 //common
+public class Main {
+    public static void main(String[] args) {
+        FScanner sc = new FScanner(System.in);
+        FWriter out = new FWriter(System.out);
+        try {
+            Solver.solve(sc, out);
+        } catch (Throwable e) {
+            out.println(e);
+        }
+        out.flush();
+        sc.close();
+    }
+}
+
 class FScanner {
     private InputStream in;
     private final byte[] buffer = new byte[1024];

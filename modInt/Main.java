@@ -1,26 +1,14 @@
 import java.util.*;
 import java.io.*;
 
-public class Main {
-    public static void solve(FScanner sc, FWriter out) {
+class Solver {
+    static void solve(FScanner sc, FWriter out) {
         sc.nextIntArrayStream(sc.nextInt(), 2).forEach(line -> {
             out.print("permutation").print(line[0]).print(':').print(line[1]).print(':')
                     .println(ModInt.permutations(line[0], line[1]));
             out.print("permutation").print(line[0]).print(':').print(line[1]).print(':')
                     .println(ModInt.combination(line[0], line[1]));
         });
-    }
-
-    public static void main(String[] args) {
-        FScanner sc = new FScanner(System.in);
-        FWriter out = new FWriter(System.out);
-        try {
-            solve(sc, out);
-        } catch (Throwable e) {
-            out.println(e);
-        }
-        out.flush();
-        sc.close();
     }
 }
 
@@ -240,6 +228,20 @@ class ModInt extends Number {
 }
 
 //common
+public class Main {
+    public static void main(String[] args) {
+        FScanner sc = new FScanner(System.in);
+        FWriter out = new FWriter(System.out);
+        try {
+            Solver.solve(sc, out);
+        } catch (Throwable e) {
+            out.println(e);
+        }
+        out.flush();
+        sc.close();
+    }
+}
+
 class FScanner {
     private InputStream in;
     private final byte[] buffer = new byte[1024];
