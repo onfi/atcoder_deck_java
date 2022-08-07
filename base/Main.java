@@ -231,16 +231,18 @@ class FWriter {
         write(LF);
     }
 
-    void print(char c) {
+    FWriter print(char c) {
         write((byte) c);
+        return this;
     }
 
-    void println(char c) {
+    FWriter println(char c) {
         print(c);
         println();
+        return this;
     }
 
-    void print(int n) {
+    FWriter print(int n) {
         if (n < 0) {
             n = -n;
             write(HYPHEN);
@@ -253,14 +255,16 @@ class FWriter {
         } while (n > 0);
 
         write(ibuf, i, ibuf.length - i);
+        return this;
     }
 
-    void println(int n) {
+    FWriter println(int n) {
         print(n);
         println();
+        return this;
     }
 
-    void print(long n) {
+    FWriter print(long n) {
         if (n < 0) {
             n = -n;
             write(HYPHEN);
@@ -273,55 +277,68 @@ class FWriter {
         } while (n > 0);
 
         write(ibuf, i, ibuf.length - i);
+        return this;
     }
 
-    void println(long n) {
+    FWriter println(long n) {
         print(n);
         println();
+        return this;
     }
 
-    void print(String s) {
-        byte[] b = s.getBytes();
-        write(b, 0, b.length);
+    FWriter print(String s) {
+        if (s != null) {
+            byte[] b = s.getBytes();
+            write(b, 0, b.length);
+        }
+        return this;
     }
 
-    void println(String s) {
+    FWriter println(String s) {
         print(s);
         println();
+        return this;
     }
 
-    void print(int[] a) {
+    FWriter print(int[] a) {
         for (int i = 0; i < a.length; i++) {
-            write(SP);
+            if (i > 0)
+                write(SP);
             print(a[i]);
         }
+        return this;
     }
 
-    void println(int[] a) {
+    FWriter println(int[] a) {
         print(a);
         println();
+        return this;
     }
 
-    void print(char[] s, int from, int to) {
+    FWriter print(char[] s, int from, int to) {
         for (int i = from; i < to && s[i] != '\0'; i++) {
             print(s[i]);
         }
+        return this;
     }
 
-    void print(char[] s) {
+    FWriter print(char[] s) {
         print(s, 0, s.length);
+        return this;
     }
 
-    void println(char[] s, int from, int to) {
+    FWriter println(char[] s, int from, int to) {
         print(s, from, to);
         println();
+        return this;
     }
 
-    void println(char[] s) {
+    FWriter println(char[] s) {
         println(s, 0, s.length);
+        return this;
     }
 
-    void print(double n, int accuracy) {
+    FWriter print(double n, int accuracy) {
         long longN = (long) n;
         print(longN);
         n -= (long) n;
@@ -333,30 +350,47 @@ class FWriter {
             write((byte) (digit + '0'));
             n -= digit;
         }
+        return this;
     }
 
-    void print(double n) {
+    FWriter print(double n) {
         print(n, 10);
+        return this;
     }
 
-    void println(double n) {
+    FWriter println(double n) {
         print(n);
         println();
+        return this;
     }
 
-    void println(double n, int accuracy) {
+    FWriter println(double n, int accuracy) {
         print(n, accuracy);
         println();
+        return this;
     }
 
-    void print(Object o) {
+    FWriter print(Object o) {
         if (o != null) {
             print(o.toString());
         }
+        return this;
     }
 
-    void println(Object o) {
+    FWriter println(Object o) {
         print(o);
-        println(o);
+        println();
+        return this;
+    }
+
+    FWriter println(Throwable e) {
+        println(e.getMessage());
+        for (StackTraceElement el : e.getStackTrace()) {
+            print("    ").println(el.toString());
+        }
+        if (e.getCause() != null) {
+            println(e.getCause());
+        }
+        return this;
     }
 }
