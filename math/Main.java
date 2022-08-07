@@ -12,7 +12,7 @@ class Solver {
     }
 }
 
-class Math {
+class MathLib {
     public static long gcd(long a, long b) {
         long c = b;
         b = a;
