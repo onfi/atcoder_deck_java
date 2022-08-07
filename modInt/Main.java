@@ -239,6 +239,7 @@ class ModInt extends Number {
     }
 }
 
+//common
 class FScanner {
     private InputStream in;
     private final byte[] buffer = new byte[1024];
