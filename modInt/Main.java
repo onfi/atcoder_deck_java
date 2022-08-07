@@ -3,23 +3,22 @@ import java.io.*;
 
 public class Main {
     public static void solve(FScanner sc, FWriter out) {
-        int n = sc.nextInt(), q = sc.nextInt();
-        UnionFind unionFind = new UnionFind(n + 1);
-
-        while (q-- > 0) {
-            int p = sc.nextInt(), a = sc.nextInt(), b = sc.nextInt();
-            if (p == 0) {
-                unionFind.unite(a, b);
-            } else {
-                out.println(unionFind.same(a, b) ? "Yes" : "No");
-            }
-        }
+        sc.nextIntArrayStream(sc.nextInt(), 2).forEach(line -> {
+            out.print("permutation").print(line[0]).print(':').print(line[1]).print(':')
+                    .println(ModInt.permutations(line[0], line[1]));
+            out.print("permutation").print(line[0]).print(':').print(line[1]).print(':')
+                    .println(ModInt.combination(line[0], line[1]));
+        });
     }
 
     public static void main(String[] args) {
         FScanner sc = new FScanner(System.in);
         FWriter out = new FWriter(System.out);
-        solve(sc, out);
+        try {
+            solve(sc, out);
+        } catch (Throwable e) {
+            out.println(e);
+        }
         out.flush();
         sc.close();
     }
@@ -28,15 +27,16 @@ public class Main {
 class ModInt extends Number {
     static final int MOD = 1000000007;
     static final int MEMO_SIZE = 1024;
-    static List<ModInt> memoFactrial = Arrays.asList(ModInt.valueOf(1));
-    static int memoInverse[] = null;
-    static ModInt memoModInt[] = new ModInt[MEMO_SIZE];
+    static List<ModInt> memoFactrial;
+    static Map<Integer, ModInt> memoInverse = new HashMap<>();
+    static ModInt memoModInt[];
+
     int value;
 
     static {
-        for (int i = 0; i < MEMO_SIZE; i++) {
-            memoModInt[i] = new ModInt(i);
-        }
+        memoModInt = new ModInt[MEMO_SIZE];
+        memoFactrial = new ArrayList<ModInt>();
+        memoFactrial.add(ModInt.valueOf(1));
     }
 
     static int add(int a, int b) {
@@ -67,14 +67,13 @@ class ModInt extends Number {
     }
 
     static int inverse(int a) {
-        if (memoInverse == null) {
-            memoInverse = new int[MOD];
-            Arrays.fill(memoInverse, -1);
+        if (memoInverse.containsKey(a)) {
+            return memoInverse.get(a).intValue();
+        } else {
+            ModInt inverse = ModInt.valueOf(pow(a, MOD - 2));
+            memoInverse.put(a, inverse);
+            return inverse.intValue();
         }
-        if (memoInverse[a] < 0) {
-            memoInverse[a] = pow(a, MOD - 2);
-        }
-        return memoInverse[a];
     }
 
     static int div(int a, int b) {
@@ -82,7 +81,7 @@ class ModInt extends Number {
     }
 
     static ModInt factrial(int n) {
-        for (int i = memoFactrial.size(); i < n; i++) {
+        for (int i = memoFactrial.size(); i <= n; i++) {
             memoFactrial.add(memoFactrial.get(i - 1).mul(i));
         }
         return memoFactrial.get(n);
@@ -188,7 +187,7 @@ class ModInt extends Number {
 
     static ModInt valueOf(int value) {
         if (value < MEMO_SIZE) {
-            return memoModInt[value];
+            return memoModInt[value] = memoModInt[value] != null ? memoModInt[value] : new ModInt(value);
         }
         return new ModInt(value);
     }
@@ -232,6 +231,11 @@ class ModInt extends Number {
             return false;
         Number other = (Number) obj;
         return value == other.intValue();
+    }
+
+    @Override
+    public String toString() {
+        return String.valueOf(value);
     }
 }
 
@@ -430,16 +434,18 @@ class FWriter {
         write(LF);
     }
 
-    void print(char c) {
+    FWriter print(char c) {
         write((byte) c);
+        return this;
     }
 
-    void println(char c) {
+    FWriter println(char c) {
         print(c);
         println();
+        return this;
     }
 
-    void print(int n) {
+    FWriter print(int n) {
         if (n < 0) {
             n = -n;
             write(HYPHEN);
@@ -452,14 +458,16 @@ class FWriter {
         } while (n > 0);
 
         write(ibuf, i, ibuf.length - i);
+        return this;
     }
 
-    void println(int n) {
+    FWriter println(int n) {
         print(n);
         println();
+        return this;
     }
 
-    void print(long n) {
+    FWriter print(long n) {
         if (n < 0) {
             n = -n;
             write(HYPHEN);
@@ -472,55 +480,68 @@ class FWriter {
         } while (n > 0);
 
         write(ibuf, i, ibuf.length - i);
+        return this;
     }
 
-    void println(long n) {
+    FWriter println(long n) {
         print(n);
         println();
+        return this;
     }
 
-    void print(String s) {
-        byte[] b = s.getBytes();
-        write(b, 0, b.length);
+    FWriter print(String s) {
+        if (s != null) {
+            byte[] b = s.getBytes();
+            write(b, 0, b.length);
+        }
+        return this;
     }
 
-    void println(String s) {
+    FWriter println(String s) {
         print(s);
         println();
+        return this;
     }
 
-    void print(int[] a) {
+    FWriter print(int[] a) {
         for (int i = 0; i < a.length; i++) {
-            write(SP);
+            if (i > 0)
+                write(SP);
             print(a[i]);
         }
+        return this;
     }
 
-    void println(int[] a) {
+    FWriter println(int[] a) {
         print(a);
         println();
+        return this;
     }
 
-    void print(char[] s, int from, int to) {
+    FWriter print(char[] s, int from, int to) {
         for (int i = from; i < to && s[i] != '\0'; i++) {
             print(s[i]);
         }
+        return this;
     }
 
-    void print(char[] s) {
+    FWriter print(char[] s) {
         print(s, 0, s.length);
+        return this;
     }
 
-    void println(char[] s, int from, int to) {
+    FWriter println(char[] s, int from, int to) {
         print(s, from, to);
         println();
+        return this;
     }
 
-    void println(char[] s) {
+    FWriter println(char[] s) {
         println(s, 0, s.length);
+        return this;
     }
 
-    void print(double n, int accuracy) {
+    FWriter print(double n, int accuracy) {
         long longN = (long) n;
         print(longN);
         n -= (long) n;
@@ -532,30 +553,47 @@ class FWriter {
             write((byte) (digit + '0'));
             n -= digit;
         }
+        return this;
     }
 
-    void print(double n) {
+    FWriter print(double n) {
         print(n, 10);
+        return this;
     }
 
-    void println(double n) {
+    FWriter println(double n) {
         print(n);
         println();
+        return this;
     }
 
-    void println(double n, int accuracy) {
+    FWriter println(double n, int accuracy) {
         print(n, accuracy);
         println();
+        return this;
     }
 
-    void print(Object o) {
+    FWriter print(Object o) {
         if (o != null) {
             print(o.toString());
         }
+        return this;
     }
 
-    void println(Object o) {
+    FWriter println(Object o) {
         print(o);
-        println(o);
+        println();
+        return this;
+    }
+
+    FWriter println(Throwable e) {
+        println(e.getMessage());
+        for (StackTraceElement el : e.getStackTrace()) {
+            print("    ").println(el.toString());
+        }
+        if (e.getCause() != null) {
+            println(e.getCause());
+        }
+        return this;
     }
 }
