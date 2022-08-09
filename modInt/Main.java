@@ -372,6 +372,22 @@ class FScanner {
         return java.util.stream.IntStream.range(0, n).mapToObj(i -> next());
     }
 
+    public int[] nextIntArray(int arraySize) {
+        int[] ary = new int[arraySize];
+        for (int i = 0; i < arraySize; i++) {
+            ary[i] = nextInt();
+        }
+        return ary;
+    }
+
+    public long[] nextLongArray(int arraySize) {
+        long[] ary = new long[arraySize];
+        for (int i = 0; i < arraySize; i++) {
+            ary[i] = nextLong();
+        }
+        return ary;
+    }
+
     public java.util.stream.Stream<int[]> nextIntArrayStream(int n, int arraySize) {
         return java.util.stream.IntStream.range(0, n).mapToObj(_i -> {
             int[] ary = new int[arraySize];

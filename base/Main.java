@@ -1,29 +1,18 @@
 import java.util.*;
 import java.io.*;
-import java.util.regex.*;
 
 class Solver {
     static void solve(FScanner sc, FWriter out) {
-        int n = sc.nextInt();
-        int cnt = 0;
-        int a = 0, b = 0;
-        Pattern p = Pattern.compile("AB");
-        while (n-- > 0) {
-            String s = sc.next();
-            Matcher m = p.matcher(s);
-            int index = 0;
-            while (m.find(index)) {
-                cnt++;
-                index = m.end();
+        Map<Integer, Integer> a = new HashMap<>();
+        sc.nextIntArrayStream(1,5).forEach(ary -> {
+            for(var i : ary ) {
+                if(!a.containsKey(i)) {
+                    a.put(i, 0);
+                }
+                a.put(i, a.get(i) + 1);
             }
-            if (s.startsWith("B")) {
-                b++;
-            }
-            if (s.endsWith("A")) {
-                a++;
-            }
-        }
-        out.println(cnt + Math.min(Math.min(a, b), n - 1));
+        });
+        out.println(a.entrySet().stream().allMatch(s -> s.getValue() == 2 || s.getValue() == 3) ? "Yes" : "No");
     }
 }
 
@@ -170,6 +159,22 @@ class FScanner {
 
     public java.util.stream.Stream<String> nextStream(int n) {
         return java.util.stream.IntStream.range(0, n).mapToObj(i -> next());
+    }
+
+    public int[] nextIntArray(int arraySize) {
+        int[] ary = new int[arraySize];
+        for (int i = 0; i < arraySize; i++) {
+            ary[i] = nextInt();
+        }
+        return ary;
+    }
+
+    public long[] nextLongArray(int arraySize) {
+        long[] ary = new long[arraySize];
+        for (int i = 0; i < arraySize; i++) {
+            ary[i] = nextLong();
+        }
+        return ary;
     }
 
     public java.util.stream.Stream<int[]> nextIntArrayStream(int n, int arraySize) {
