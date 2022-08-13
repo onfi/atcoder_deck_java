@@ -70,6 +70,26 @@ public class Main {
     }
 }
 
+class TwoKeyMap<K,V> {
+    Map<K, Map<K,V>> map = new HashMap<>();
+    Set<K> key2Set = new HashSet<>();
+    TwoKeyMap<K,V> put(K key1, K key2, V value) {
+        key2Set.add(key2);
+        map.computeIfAbsent(key1, (f) -> new HashMap<K,V>()).put(key2, value);
+        return this;
+    }
+    TwoKeyMap<K,V> merge(K key1, K key2, V value, java.util.function.BiFunction<? super V,? super V,? extends V> remappingFunction) {
+        key2Set.add(key2);
+        map.computeIfAbsent(key1, (f) -> new HashMap<K,V>()).merge(key2, value, remappingFunction);
+        return this;
+    }
+    V get(K key1, K key2) {
+        var m1 = map.get(key1);
+        if(m1 == null) return null;
+        return m1.get(key2);
+    }
+}
+
 class FScanner {
     private InputStream in;
     private final byte[] buffer = new byte[1024];
