@@ -28,22 +28,27 @@ class Edge<K> {
     }
 }
 class Route<K> implements Comparable<Route<K>> {
-    K edge;
+    K from;
+    K to;
     List<Route<K>> routes;
     long cost;
-    Route(K edge) {
-        this.edge = edge;
+    Route(K from, K to) {
+        this.from = from;
+        this.to = to;
         this.cost = 0L;
         this.routes = new ArrayList<Route<K>>();
         this.routes.add(this);
     }
-    Route(K edge, long cost) {
-        this.edge = edge;
+    Route(K from, K to, long cost) {
+        this.from = from;
+        this.to = to;
         this.cost = cost;
     }
-    Route(K edge, List<Route<K>> prevRoutes, long cost) {
-        this.edge = edge;
+    Route(K from, K to, List<Route<K>> prevRoutes, long cost) {
+        this.from = from;
+        this.to = to;
         this.cost = cost;
+        // TODO: パフォーマンスに問題あり
         this.routes = new ArrayList<Route<K>>(prevRoutes);
         this.routes.add(this);
     }
@@ -91,19 +96,19 @@ class Graph<K extends Comparable<K>,V> {
     public Map<K,Route<K>> dijkstra(K from, K to, boolean enableRoute) {
         Map<K,Route<K>> result = new HashMap<>();
         Set<K> fixed = new HashSet<>();
-        PriorityQueue<Route<K>> queue = new PriorityQueue<>((a, b) -> -a.compareTo(b));
-        queue.add(new Route<K>(from));
+        PriorityQueue<Route<K>> queue = new PriorityQueue<>((a, b) -> a.compareTo(b));
+        queue.add(new Route<K>(from, from));
         while(!queue.isEmpty()) {
             var route = queue.poll();
-            if(fixed.contains(route.edge)) continue;
-            fixed.add(route.edge);
-            for(var target : edges.get(route.edge)) {
+            if(fixed.contains(route.to)) continue;
+            fixed.add(route.to);
+            for(var target : edges.get(route.to)) {
                 if(fixed.contains(target.to)) continue;
                 Route<K> newRoute;
                 if(enableRoute) {
-                    newRoute = new Route<K>(target.to, route.routes, route.cost + target.cost);
+                    newRoute = new Route<K>(route.from, target.to, route.routes, route.cost + target.cost);
                 } else {
-                    newRoute = new Route<K>(target.to, route.cost + target.cost);
+                    newRoute = new Route<K>(route.from, target.to, route.cost + target.cost);
                 }
                 result.merge(target.to, newRoute, (a, b) -> {
                     if(a.compareTo(b) <= 0) {
@@ -121,6 +126,19 @@ class Graph<K extends Comparable<K>,V> {
     }
     public Map<K,Route<K>> dijkstra(K from, K to) {
         return dijkstra(from, to, false);
+    }
+    public TwoKeyMap<K,Route<K>> floydWarshall() {
+        var result = new TwoKeyMap<K,Route<K>>();
+        // nodes * nodesで初期化する
+        nodes.keySet().stream().forEach(key1 -> {
+            // 自分から自分へは0コスト
+            result.put(key1, key1, new Route<>(key1, key1));
+
+            edges.get(key1).forEach(edge -> {
+                result.merge(key1, edge.to, new Route<K>(key1, edge.to, edge.cost), (a,b) -> a.compareTo(b) <= 0 ? a : b);
+            });
+        });
+        return result;
     }
 }
 
@@ -141,14 +159,14 @@ public class Main {
 
 class TwoKeyMap<K,V> {
     Map<K, Map<K,V>> map = new HashMap<>();
-    Set<K> key2Set = new HashSet<>();
+    Set<K> _key2Set = new HashSet<>();
     TwoKeyMap<K,V> put(K key1, K key2, V value) {
-        key2Set.add(key2);
+        _key2Set.add(key2);
         map.computeIfAbsent(key1, (f) -> new HashMap<K,V>()).put(key2, value);
         return this;
     }
     TwoKeyMap<K,V> merge(K key1, K key2, V value, java.util.function.BiFunction<? super V,? super V,? extends V> remappingFunction) {
-        key2Set.add(key2);
+        _key2Set.add(key2);
         map.computeIfAbsent(key1, (f) -> new HashMap<K,V>()).merge(key2, value, remappingFunction);
         return this;
     }
@@ -156,6 +174,22 @@ class TwoKeyMap<K,V> {
         var m1 = map.get(key1);
         if(m1 == null) return null;
         return m1.get(key2);
+    }
+    Map<K, V> get(K key1) {
+        return map.get(key1);
+    }
+    V computeIfAbsent(K key1, K key2, java.util.function.Function<? super K,? extends V> mappingFunction) {
+        return map.computeIfAbsent(key1, (f) -> new HashMap<K,V>()).computeIfAbsent(key2, mappingFunction);
+    }
+    boolean containsKey(K key1, K key2) {
+        return get(key1, key2) != null;
+    }
+    Set<K> key1Set() {
+        return map.keySet();
+    }
+    Set<K> key2Set() {
+        // 本来はインスタンス作るべきだが、競技プログラミング向けなのでパフォーマンス優先
+        return _key2Set;
     }
 }
 

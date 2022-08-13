@@ -72,14 +72,14 @@ public class Main {
 
 class TwoKeyMap<K,V> {
     Map<K, Map<K,V>> map = new HashMap<>();
-    Set<K> key2Set = new HashSet<>();
+    Set<K> _key2Set = new HashSet<>();
     TwoKeyMap<K,V> put(K key1, K key2, V value) {
-        key2Set.add(key2);
+        _key2Set.add(key2);
         map.computeIfAbsent(key1, (f) -> new HashMap<K,V>()).put(key2, value);
         return this;
     }
     TwoKeyMap<K,V> merge(K key1, K key2, V value, java.util.function.BiFunction<? super V,? super V,? extends V> remappingFunction) {
-        key2Set.add(key2);
+        _key2Set.add(key2);
         map.computeIfAbsent(key1, (f) -> new HashMap<K,V>()).merge(key2, value, remappingFunction);
         return this;
     }
@@ -87,6 +87,22 @@ class TwoKeyMap<K,V> {
         var m1 = map.get(key1);
         if(m1 == null) return null;
         return m1.get(key2);
+    }
+    Map<K, V> get(K key1) {
+        return map.get(key1);
+    }
+    V computeIfAbsent(K key1, K key2, java.util.function.Function<? super K,? extends V> mappingFunction) {
+        return map.computeIfAbsent(key1, (f) -> new HashMap<K,V>()).computeIfAbsent(key2, mappingFunction);
+    }
+    boolean containsKey(K key1, K key2) {
+        return get(key1, key2) != null;
+    }
+    Set<K> key1Set() {
+        return map.keySet();
+    }
+    Set<K> key2Set() {
+        // 本来はインスタンス作るべきだが、競技プログラミング向けなのでパフォーマンス優先
+        return _key2Set;
     }
 }
 
