@@ -6,10 +6,10 @@ class Solver {
         // https://atcoder.jp/contests/typical-algorithm/tasks/typical_algorithm_d
         int n = sc.nextInt(), m = sc.nextInt();
         Graph<Integer, String> g = new Graph<>();
-        for(var i = 0; i < n; i++) {
+        for (var i = 0; i < n; i++) {
             g.addNode(i);
         }
-        for(var i = 0; i < m; i++) {
+        for (var i = 0; i < m; i++) {
             int u = sc.nextInt(), v = sc.nextInt();
             long c = sc.nextLong();
             g.addOneway(u, v, c);
@@ -22,16 +22,19 @@ class Solver {
 class Edge<K> {
     K to;
     long cost = 1;
+
     public Edge(K to, long cost) {
         this.to = to;
         this.cost = cost;
     }
 }
+
 class Route<K> implements Comparable<Route<K>> {
     K from;
     K to;
     List<Route<K>> routes;
     long cost;
+
     Route(K from, K to) {
         this.from = from;
         this.to = to;
@@ -39,11 +42,13 @@ class Route<K> implements Comparable<Route<K>> {
         this.routes = new ArrayList<Route<K>>();
         this.routes.add(this);
     }
+
     Route(K from, K to, long cost) {
         this.from = from;
         this.to = to;
         this.cost = cost;
     }
+
     Route(K from, K to, List<Route<K>> prevRoutes, long cost) {
         this.from = from;
         this.to = to;
@@ -52,97 +57,151 @@ class Route<K> implements Comparable<Route<K>> {
         this.routes = new ArrayList<Route<K>>(prevRoutes);
         this.routes.add(this);
     }
+
     @Override
     public int compareTo(Route<K> o) {
-        if(cost == o.cost) {
+        if (cost == o.cost) {
             return 0;
-        } else if(cost < o.cost) {
+        } else if (cost < o.cost) {
             return -1;
         }
         return 1;
     }
+
+    @Override
+    public String toString() {
+        return "{from:" + from + ", to:" + to + ", cost:" + cost + "}";
+    }
 }
-class Graph<K extends Comparable<K>,V> {
-    Map<K,V> nodes = new HashMap<>();
-    Map<K,List<Edge<K>>> edges = new HashMap<>();
-    public Graph(){}
-    public Graph(Map<K,V> map) {
+
+class Graph<K extends Comparable<K>, V> {
+    Map<K, V> nodes = new HashMap<>();
+    Map<K, List<Edge<K>>> edges = new HashMap<>();
+
+    public Graph() {
+    }
+
+    public Graph(Map<K, V> map) {
         this.nodes = map;
     }
+
     public V get(K key) {
         return nodes.get(key);
     }
-    public Graph<K,V> addNode(K key, V value) {
+
+    public Graph<K, V> addNode(K key, V value) {
         nodes.put(key, value);
         edges.put(key, new ArrayList<Edge<K>>());
         return this;
     }
-    public Graph<K,V> addNode(K key) {
+
+    public Graph<K, V> addNode(K key) {
         return addNode(key, null);
     }
-    public Graph<K,V> addOneway(K from, K to, long cost) {
+
+    public Graph<K, V> addOneway(K from, K to, long cost) {
         edges.computeIfAbsent(from, (f) -> new ArrayList<Edge<K>>()).add(new Edge<K>(to, cost));
         return this;
     }
-    public Graph<K,V> addOneway(K from, K to) {
+
+    public Graph<K, V> addOneway(K from, K to) {
         return addOneway(from, to, 1);
     }
-    public Graph<K,V> addTwoway(K from, K to, long cost) {
+
+    public Graph<K, V> addTwoway(K from, K to, long cost) {
         return this.addOneway(from, to, cost).addOneway(to, from, cost);
     }
-    public Graph<K,V> addTwoway(K from, K to) {
+
+    public Graph<K, V> addTwoway(K from, K to) {
         return addTwoway(from, to, 1);
     }
-    public Map<K,Route<K>> dijkstra(K from, K to, boolean enableRoute) {
-        Map<K,Route<K>> result = new HashMap<>();
+
+    /**
+     * 単一始点最短経路問題をダイクストラ法で解く
+     * @param from 始点
+     * @param to 終点
+     * @param enableRoute true: 途中経路を計算させる
+     * @return 最短経路
+     */
+    public Map<K, Route<K>> dijkstra(K from, K to, boolean enableRoute) {
+        Map<K, Route<K>> result = new HashMap<>();
         Set<K> fixed = new HashSet<>();
         PriorityQueue<Route<K>> queue = new PriorityQueue<>((a, b) -> a.compareTo(b));
         queue.add(new Route<K>(from, from));
-        while(!queue.isEmpty()) {
+        while (!queue.isEmpty()) {
             var route = queue.poll();
-            if(fixed.contains(route.to)) continue;
+            if (fixed.contains(route.to))
+                continue;
             fixed.add(route.to);
-            for(var target : edges.get(route.to)) {
-                if(fixed.contains(target.to)) continue;
+            for (var target : edges.get(route.to)) {
+                if (fixed.contains(target.to))
+                    continue;
                 Route<K> newRoute;
-                if(enableRoute) {
+                if (enableRoute) {
                     newRoute = new Route<K>(route.from, target.to, route.routes, route.cost + target.cost);
                 } else {
                     newRoute = new Route<K>(route.from, target.to, route.cost + target.cost);
                 }
                 result.merge(target.to, newRoute, (a, b) -> {
-                    if(a.compareTo(b) <= 0) {
-                        return a;    
+                    if (a.compareTo(b) <= 0) {
+                        return a;
                     } else {
                         return b;
                     }
                 });
-                if(newRoute.equals(result.get(target.to))) {
+                if (newRoute.equals(result.get(target.to))) {
                     queue.add(newRoute);
                 }
             }
         }
         return result;
     }
-    public Map<K,Route<K>> dijkstra(K from, K to) {
+
+    /**
+     * 単一始点最短経路問題をダイクストラ法で解く。途中経路は計算しない。
+     * @param from 始点
+     * @param to 終点
+     * @return 最短経路
+     */
+    public Map<K, Route<K>> dijkstra(K from, K to) {
         return dijkstra(from, to, false);
     }
-    public TwoKeyMap<K,Route<K>> floydWarshall() {
-        var result = new TwoKeyMap<K,Route<K>>();
+
+    /**
+     * 全点対最短経路問題をワーシャルフロイド法で解く
+     * @see https://atcoder.jp/contests/typical-algorithm/submissions/33979897
+     * @return 全点対最短経路が入ったTwoKeyMap
+     */
+    public TwoKeyMap<K, Route<K>> floydWarshall() {
+        var result = new TwoKeyMap<K, Route<K>>();
         // nodes * nodesで初期化する
         nodes.keySet().stream().forEach(key1 -> {
             // 自分から自分へは0コスト
             result.put(key1, key1, new Route<>(key1, key1));
 
             edges.get(key1).forEach(edge -> {
-                result.merge(key1, edge.to, new Route<K>(key1, edge.to, edge.cost), (a,b) -> a.compareTo(b) <= 0 ? a : b);
+                result.merge(key1, edge.to, new Route<K>(key1, edge.to, edge.cost),
+                        (a, b) -> a.compareTo(b) <= 0 ? a : b);
             });
         });
+        for (var k : nodes.keySet()) {
+            for (var i : nodes.keySet()) {
+                if (i.equals(k))
+                    continue;
+                for (var j : nodes.keySet()) {
+                    var ik = result.get(i, k);
+                    var kj = result.get(k, j);
+                    if (ik == null || kj == null)
+                        continue;
+                    result.merge(i, j, new Route<K>(i, j, ik.cost + kj.cost), (a, b) -> a.compareTo(b) <= 0 ? a : b);
+                }
+            }
+        }
         return result;
     }
 }
 
-//common
+// common
 public class Main {
     public static void main(String[] args) {
         FScanner sc = new FScanner(System.in);
@@ -157,36 +216,46 @@ public class Main {
     }
 }
 
-class TwoKeyMap<K,V> {
-    Map<K, Map<K,V>> map = new HashMap<>();
+class TwoKeyMap<K, V> {
+    Map<K, Map<K, V>> map = new HashMap<>();
     Set<K> _key2Set = new HashSet<>();
-    TwoKeyMap<K,V> put(K key1, K key2, V value) {
+
+    TwoKeyMap<K, V> put(K key1, K key2, V value) {
         _key2Set.add(key2);
-        map.computeIfAbsent(key1, (f) -> new HashMap<K,V>()).put(key2, value);
+        map.computeIfAbsent(key1, (f) -> new HashMap<K, V>()).put(key2, value);
         return this;
     }
-    TwoKeyMap<K,V> merge(K key1, K key2, V value, java.util.function.BiFunction<? super V,? super V,? extends V> remappingFunction) {
+
+    TwoKeyMap<K, V> merge(K key1, K key2, V value,
+            java.util.function.BiFunction<? super V, ? super V, ? extends V> remappingFunction) {
         _key2Set.add(key2);
-        map.computeIfAbsent(key1, (f) -> new HashMap<K,V>()).merge(key2, value, remappingFunction);
+        map.computeIfAbsent(key1, (f) -> new HashMap<K, V>()).merge(key2, value, remappingFunction);
         return this;
     }
+
     V get(K key1, K key2) {
         var m1 = map.get(key1);
-        if(m1 == null) return null;
+        if (m1 == null)
+            return null;
         return m1.get(key2);
     }
+
     Map<K, V> get(K key1) {
         return map.get(key1);
     }
-    V computeIfAbsent(K key1, K key2, java.util.function.Function<? super K,? extends V> mappingFunction) {
-        return map.computeIfAbsent(key1, (f) -> new HashMap<K,V>()).computeIfAbsent(key2, mappingFunction);
+
+    V computeIfAbsent(K key1, K key2, java.util.function.Function<? super K, ? extends V> mappingFunction) {
+        return map.computeIfAbsent(key1, (f) -> new HashMap<K, V>()).computeIfAbsent(key2, mappingFunction);
     }
+
     boolean containsKey(K key1, K key2) {
         return get(key1, key2) != null;
     }
+
     Set<K> key1Set() {
         return map.keySet();
     }
+
     Set<K> key2Set() {
         // 本来はインスタンス作るべきだが、競技プログラミング向けなのでパフォーマンス優先
         return _key2Set;
