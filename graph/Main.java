@@ -557,6 +557,21 @@ class FWriter {
         return this;
     }
 
+    FWriter print(long[] a) {
+        for (int i = 0; i < a.length; i++) {
+            if (i > 0)
+                write(SP);
+            print(a[i]);
+        }
+        return this;
+    }
+
+    FWriter println(long[] a) {
+        print(a);
+        println();
+        return this;
+    }
+
     FWriter print(char[] s, int from, int to) {
         for (int i = from; i < to && s[i] != '\0'; i++) {
             print(s[i]);
