@@ -3,17 +3,41 @@ import java.io.*;
 
 class Solver {
     static void solve(FScanner sc, FWriter out) {
-        Map<Integer, Integer> a = new HashMap<>();
-        sc.nextIntArrayStream(1,5).forEach(ary -> {
-            for(var i : ary ) {
-                if(!a.containsKey(i)) {
-                    a.put(i, 0);
+        char[] s = sc.next().toCharArray(), t = sc.next().toCharArray();
+        int[][] dp = new int[3001][3001];
+
+
+        for(var i = 0; i < s.length; i++) {
+            for(var j = 0; j < t.length; j++) {
+                if(s[i] == t[j]) {
+                    dp[i + 1][j + 1] = dp[i][j] + 1;
                 }
-                a.put(i, a.get(i) + 1);
+                dp[i + 1][j + 1] = Math.max(dp[i + 1][j + 1], Math.max(dp[i + 1][j], dp[i][j + 1]));
             }
-        });
-        out.println(a.entrySet().stream().allMatch(s -> s.getValue() == 2 || s.getValue() == 3) ? "Yes" : "No");
+        }
+        var i = s.length;
+        var j = t.length;
+        var index = dp[i][j];
+        char[] result = new char[index--];
+        while(i > 0 || j > 0) {
+            if(i > 0 && dp[i - 1][j] == dp[i][j]) {
+                i--;
+            } else if(j > 0 && dp[i][j - 1] == dp[i][j]) {
+                j--;
+            } else {
+                result[index--] = t[j - 1];
+                i--;
+                j--;
+            }
+        }
+        out.println(result);
     }
+    static final long safeAdd(long left, long right) throws ArithmeticException {
+        if (right > 0 ? left > Long.MAX_VALUE - right : left < Long.MIN_VALUE - right) {
+         return Long.MAX_VALUE;
+       }
+       return left + right;
+     }
 }
 
 // common

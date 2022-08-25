@@ -118,8 +118,9 @@ class Graph<K extends Comparable<K>, V> {
 
     /**
      * 単一始点最短経路問題をダイクストラ法で解く
-     * @param from 始点
-     * @param to 終点
+     * 
+     * @param from        始点
+     * @param to          終点
      * @param enableRoute true: 途中経路を計算させる
      * @return 最短経路
      */
@@ -159,8 +160,9 @@ class Graph<K extends Comparable<K>, V> {
 
     /**
      * 単一始点最短経路問題をダイクストラ法で解く。途中経路は計算しない。
+     * 
      * @param from 始点
-     * @param to 終点
+     * @param to   終点
      * @return 最短経路
      */
     public Map<K, Route<K>> dijkstra(K from, K to) {
@@ -169,6 +171,7 @@ class Graph<K extends Comparable<K>, V> {
 
     /**
      * 全点対最短経路問題をワーシャルフロイド法で解く
+     * 
      * @see https://atcoder.jp/contests/typical-algorithm/submissions/33979897
      * @return 全点対最短経路が入ったTwoKeyMap
      */
@@ -198,6 +201,63 @@ class Graph<K extends Comparable<K>, V> {
             }
         }
         return result;
+    }
+
+    /**
+     * 終点側のedgeのListをを持つMapを作る。
+     * ない場合は、長さ0のListを持つ。
+     * (edgesは始点側のMap)
+     * 
+     * @return 終点側のedgeのList
+     */
+    public Map<K, List<Edge<K>>> getIndegreeNodeMap() {
+        var indegreeNodeMap = new HashMap<K, List<Edge<K>>>();
+        nodes.keySet().forEach(k -> indegreeNodeMap.put(k, new ArrayList<Edge<K>>()));
+        edges.values().forEach(e -> {
+            e.forEach(edge -> {
+                indegreeNodeMap.get(edge.to).add(edge);
+            });
+        });
+        return indegreeNodeMap;
+    }
+
+    /**
+     * 入次数をカウントする
+     * 
+     * @return 入次数のMap
+     */
+    public HashMap<K, Integer> countIndegree(LinkedList<K> queue) {
+        var indegree = new HashMap<K, Integer>();
+        getIndegreeNodeMap().entrySet().forEach(entry -> {
+            indegree.put(entry.getKey(), entry.getValue().size());
+            if (entry.getValue().size() == 0) {
+                queue.push(entry.getKey());
+            }
+        });
+        return indegree;
+    }
+
+    /**
+     * Kahnのアルゴリズムでトポロジカルソートする
+     * 
+     * @see https://atcoder.jp/contests/dp/submissions/34328149
+     * @return トポロジカルソート済みのnodeのList
+     */
+    public List<K> topologicalSort() {
+        var sorted = new ArrayList<K>(nodes.size());
+        var queue = new LinkedList<K>();
+        var indegree = countIndegree(queue);
+        while (!queue.isEmpty()) {
+            var node = queue.poll();
+            sorted.add(node);
+            edges.get(node).stream().forEach(edge -> {
+                var cnt = indegree.merge(edge.to, -1, (a, b) -> a + b);
+                if (cnt == 0) {
+                    queue.push(edge.to);
+                }
+            });
+        }
+        return sorted;
     }
 }
 
