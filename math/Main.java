@@ -3,12 +3,61 @@ import java.io.*;
 
 class Solver {
     static void solve(FScanner sc, FWriter out) {
-        sc.nextIntArrayStream(sc.nextInt(), 2).forEach(line -> {
-            out.print("permutation").print(line[0]).print(':').print(line[1]).print(':')
-                    .println(ModInt.permutations(line[0], line[1]));
-            out.print("permutation").print(line[0]).print(':').print(line[1]).print(':')
-                    .println(ModInt.combination(line[0], line[1]));
-        });
+        XY[] xy = new XY[4];
+        for (var i = 0; i < 4; i++) {
+            xy[i] = new XY(sc.nextLong(), sc.nextLong());
+        }
+
+        for (var i = 0; i < 4; i++) {
+            var s1 = xy[i].deg(i == 0 ? xy[3] : xy[i - 1]);
+            var s2 = xy[i].deg(i == 3 ? xy[0] : xy[i + 1]);
+            var tmp = (s1 - s2) % 360;
+            if (tmp < 0)
+                tmp = 360 + tmp;
+            // out.println(tmp);
+            if (tmp > 180) {
+                out.println("No");
+                return;
+            }
+        }
+
+        out.println("Yes");
+    }
+}
+
+class XY {
+    long x;
+    long y;
+
+    XY(long x, long y) {
+        this.x = x;
+        this.y = y;
+    }
+
+    double slope(XY b) {
+        var dx = b.x - x;
+        if (dx == 0) {
+            if (b.y == y) {
+                return 0;
+            } else if (b.y - y > 0) {
+                return Double.POSITIVE_INFINITY;
+            }
+            return Double.NEGATIVE_INFINITY;
+        }
+        return (1.0 * (b.y - y)) / dx;
+    }
+
+    double rad(XY b) {
+        return Math.atan2(b.y - y, b.x - x);
+    }
+
+    double deg(XY b) {
+        return MathLib.radToDeg(rad(b));
+    }
+
+    @Override
+    public String toString() {
+        return "XY [x=" + x + ", y=" + y + "]";
     }
 }
 
@@ -31,6 +80,30 @@ class MathLib {
 
     public static long lcm(long m, long n) {
         return m * n / gcd(m, n);
+    }
+
+    public static long sign(long x) {
+        if (x == 0)
+            return 0;
+        if (x < 0)
+            return -1;
+        return 1;
+    }
+
+    public static long sign(double x) {
+        if (x > -0.00001 && x < 0.00001)
+            return 0;
+        if (x < 0)
+            return -1;
+        return 1;
+    }
+
+    public static double radToDeg(double rad) {
+        return rad * 180 / Math.PI;
+    }
+
+    public static double degToRad(double deg) {
+        return deg / 180 * Math.PI;
     }
 }
 
