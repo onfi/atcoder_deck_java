@@ -1,6 +1,5 @@
 import java.util.*;
 import java.io.*;
-import java.lang.reflect.Array;
 
 class Solver {
     static void solve(FScanner sc, FWriter out) {
@@ -479,9 +478,9 @@ class FWriter {
             for(var i = 0; i < indent; i++) print(' ');
             print("null");
         } else if(o.getClass().isArray()) {
-            for(int i = 0; i < Array.getLength(o); i++) {
+            for(int i = 0; i < java.lang.reflect.Array.getLength(o); i++) {
                 println();
-                _debug(Array.get(o, i), indent + 2);
+                _debug(java.lang.reflect.Array.get(o, i), indent + 2);
             }
             return;
         } else if(o instanceof Collection) {
