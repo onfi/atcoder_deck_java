@@ -1,43 +1,21 @@
 import java.util.*;
 import java.io.*;
+import java.lang.reflect.Array;
 
 class Solver {
     static void solve(FScanner sc, FWriter out) {
-        char[] s = sc.next().toCharArray(), t = sc.next().toCharArray();
-        int[][] dp = new int[3001][3001];
+        int n = sc.nextInt(), k = sc.nextInt();
+        int[] aa = sc.nextIntArray(n);
+        boolean[] dp = new boolean[k + 1];
+        dp[0] = false;
 
-
-        for(var i = 0; i < s.length; i++) {
-            for(var j = 0; j < t.length; j++) {
-                if(s[i] == t[j]) {
-                    dp[i + 1][j + 1] = dp[i][j] + 1;
-                }
-                dp[i + 1][j + 1] = Math.max(dp[i + 1][j + 1], Math.max(dp[i + 1][j], dp[i][j + 1]));
+        for(var i = 0; i < k; i++) {
+            for(var a : aa) {
+                if(i * a <= k) dp[i + a] = dp[i + a] || !dp[i];
             }
         }
-        var i = s.length;
-        var j = t.length;
-        var index = dp[i][j];
-        char[] result = new char[index--];
-        while(i > 0 || j > 0) {
-            if(i > 0 && dp[i - 1][j] == dp[i][j]) {
-                i--;
-            } else if(j > 0 && dp[i][j - 1] == dp[i][j]) {
-                j--;
-            } else {
-                result[index--] = t[j - 1];
-                i--;
-                j--;
-            }
-        }
-        out.println(result);
+        out.println(dp[k] ? "First" : "Second");
     }
-    static final long safeAdd(long left, long right) throws ArithmeticException {
-        if (right > 0 ? left > Long.MAX_VALUE - right : left < Long.MIN_VALUE - right) {
-         return Long.MAX_VALUE;
-       }
-       return left + right;
-     }
 }
 
 // common
@@ -282,6 +260,8 @@ class FWriter {
 
     final byte SP = (byte) ' ', LF = (byte) '\n', HYPHEN = (byte) '-';
 
+    boolean isDebug = false;
+
     FWriter(OutputStream out) {
         this.out = out;
     }
@@ -487,6 +467,54 @@ class FWriter {
         if (e.getCause() != null) {
             println(e.getCause());
         }
+        return this;
+    }
+
+    void enableDebug() {
+        this.isDebug = true;
+    }
+
+    private void _debug(Object o, int indent) {
+        if(o == null) {
+            for(var i = 0; i < indent; i++) print(' ');
+            print("null");
+        } else if(o.getClass().isArray()) {
+            for(int i = 0; i < Array.getLength(o); i++) {
+                println();
+                _debug(Array.get(o, i), indent + 2);
+            }
+            return;
+        } else if(o instanceof Collection) {
+            for(var item : (Collection<?>)o) {
+                println();
+                _debug(item, indent + 2);
+            }
+        } else if(o instanceof Map) {
+            for(var i = 0; i < indent; i++) print(' ');
+            println('{');
+            for(var entry : ((Map<?,?>)o).entrySet()) {
+                for(var i = 0; i < indent + 2; i++) print(' ');
+                _debug(entry.getKey(), 0);
+                _debug("  ", 0);
+                _debug(entry.getValue(), 0);
+                println();
+            }
+            for(var i = 0; i < indent; i++) print(' ');
+            println('}');
+            return;
+        }
+        for(var i = 0; i < indent; i++) print(' ');
+        print(o);
+    }
+
+    FWriter debug(Object... os) {
+        if(!isDebug) return this;
+        print("[DEBUG:").print(Thread.currentThread().getStackTrace()[2].getLineNumber()).print("]:  ");
+        for(var o : os) {
+            _debug(o, 0);
+            print(' ');
+        }
+        println("  :[DEBUG:").print(Thread.currentThread().getStackTrace()[2].getLineNumber()).print("]");
         return this;
     }
 }
