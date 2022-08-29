@@ -3,55 +3,40 @@ import java.io.*;
 
 class Solver {
     static void solve(FScanner sc, FWriter out) {
-        int n = sc.nextInt(), q = sc.nextInt();
-        UnionFind unionFind = new UnionFind(n + 1);
-
-        while (q-- > 0) {
-            int p = sc.nextInt(), a = sc.nextInt(), b = sc.nextInt();
-            if (p == 0) {
-                unionFind.unite(a, b);
-            } else {
-                out.println(unionFind.same(a, b) ? "Yes" : "No");
-            }
+        int n = sc.nextInt();
+        int[] A = sc.nextIntArray(n);
+        var set = new HashSet<Integer>();
+        for(var a : A) {
+            set.add(a);
+        }
+        var compress = new Compress<Integer>(set);
+        for(var a : A) {
+            out.println(compress.get(a));
         }
     }
 }
 
-class UnionFind {
-    public int[] parents, counts;
+class Compress<K extends Comparable<K>> {
+    Map<K, Integer> map;
+    int index = 0;
 
-    public UnionFind(int length) {
-        this.parents = new int[length];
-        this.counts = new int[length];
-        for (int i = 0; i < length; i++) {
-            parents[i] = i;
+    Compress(Collection<K> c) {
+        map = new HashMap<>();
+        put(c);
+    }
+
+    void put(Collection<K> c) {
+        Set<K> set = new TreeSet<>(c);
+        for(var k : set) {
+            if(!map.containsKey(k)) {
+                map.put(k, index);
+                index++;
+            }
         }
-        Arrays.fill(counts, 1);
     }
 
-    public int root(int x) {
-        int tmp = x;
-        while (tmp != parents[tmp]) {
-            tmp = parents[tmp];
-        }
-        return parents[x] = tmp;
-    }
-
-    public void unite(int x, int y) {
-        int rootX = root(x);
-        int rootY = root(y);
-        if (rootX == rootY)
-            return;
-        counts[rootY] += counts[rootX];
-        parents[rootX] = rootY;
-    }
-
-    public boolean same(int x, int y) {
-        return root(x) == root(y);
-    }
-
-    public int count(int x) {
-        return counts[root(x)];
+    Integer get(K k) {
+        return map.get(k);
     }
 }
 

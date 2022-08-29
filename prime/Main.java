@@ -87,11 +87,20 @@ class TwoKeyMap<K, V> {
         return this;
     }
 
+    TwoKeyMap<K, V> put(K[] key, V value) {
+        return put(key[0], key[1], value);
+    }
+
     TwoKeyMap<K, V> merge(K key1, K key2, V value,
             java.util.function.BiFunction<? super V, ? super V, ? extends V> remappingFunction) {
         _key2Set.add(key2);
         map.computeIfAbsent(key1, (f) -> new HashMap<K, V>()).merge(key2, value, remappingFunction);
         return this;
+    }
+
+    TwoKeyMap<K, V> merge(K[] key, V value,
+            java.util.function.BiFunction<? super V, ? super V, ? extends V> remappingFunction) {
+        return merge(key[0], key[1], value, remappingFunction);
     }
 
     V get(K key1, K key2) {
@@ -103,6 +112,10 @@ class TwoKeyMap<K, V> {
 
     Map<K, V> get(K key1) {
         return map.get(key1);
+    }
+
+    V get(K[] key) {
+        return get(key[0], key[1]);
     }
 
     V computeIfAbsent(K key1, K key2, java.util.function.Function<? super K, ? extends V> mappingFunction) {
