@@ -3,19 +3,31 @@ import java.io.*;
 
 class Solver {
     static void solve(FScanner sc, FWriter out) {
-        int n = sc.nextInt(), k = sc.nextInt();
-        int[] aa = sc.nextIntArray(n);
-        boolean[] dp = new boolean[k + 1];
-        dp[0] = false;
-
-        for(var i = 0; i < k; i++) {
-            for(var a : aa) {
-                if(i * a <= k) dp[i + a] = dp[i + a] || !dp[i];
+        // out.enableDebug();
+        int n = sc.nextInt();
+        int[] A = sc.nextIntArray(n);
+        long[][] dp = new long[n][n]; // 累積和
+        long[][] dp2 = new long[n][n]; // 本来のDP
+        for(var i = 0; i < n; i++) {
+            dp[i][i] = A[i];
+        }
+        for(var len = 1; len < n; len++) {
+            for(var i = 0; i < n - len; i++) {
+                dp[i][i + len] = dp[i][i + len - 1] + A[i + len];
+                dp2[i][i + len] = Long.MAX_VALUE;
+                for(var j = i; j < i + len; j++) {
+                    out.debug(i, j, j+1,i+len);
+                    dp2[i][i + len] = Math.min(dp2[i][i + len], dp2[i][j] + dp2[j + 1][i + len] + dp[i][i + len]);
+                }
             }
         }
-        out.println(dp[k] ? "First" : "Second");
+
+        long result = 0;
+
+        out.println(dp2[0][n - 1]);
     }
 }
+
 
 // common
 public class Main {
@@ -526,7 +538,7 @@ class FWriter {
             _debug(o, 0);
             print(' ');
         }
-        println("  :[DEBUG:").print(Thread.currentThread().getStackTrace()[2].getLineNumber()).print("]");
+        print("  :[DEBUG:").print(Thread.currentThread().getStackTrace()[2].getLineNumber()).println("]");
         return this;
     }
 }

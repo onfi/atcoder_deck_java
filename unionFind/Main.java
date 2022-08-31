@@ -564,7 +564,7 @@ class FWriter {
             _debug(o, 0);
             print(' ');
         }
-        println("  :[DEBUG:").print(Thread.currentThread().getStackTrace()[2].getLineNumber()).print("]");
+        print("  :[DEBUG:").print(Thread.currentThread().getStackTrace()[2].getLineNumber()).println("]");
         return this;
     }
 }
