@@ -4,18 +4,28 @@ import java.io.*;
 class Solver {
     static void solve(FScanner sc, FWriter out) {
         var n = sc.nextInt();
-        ModInt[] result = new ModInt[n + 1];
-        result[0] = ModInt.valueOf(1);
-        for(var i = 0; i < n; i++){
-            result[i + 1] = ModInt.valueOf(0);
-        }
+        var ALL = 1 << n;
+        var A = new int[n][];
         for(var i = 0; i < n; i++) {
-            var a = sc.nextInt();
-            for(var j = 1; j <= a; j++) {
-                result[i + j] = result[i].mul(2);
+            A[i] = sc.nextIntArray(n);
+        }
+        ModInt[] dp = new ModInt[ALL];
+        for(var bit = 1; bit < ALL; bit++) {
+            dp[bit] = ModInt.valueOf(0);
+        }
+        dp[0] = ModInt.valueOf(1);
+        for(var i = 0; i < n; i++) {
+            for(var bit = 0; bit < ALL; bit++) {
+                if(Integer.bitCount(bit) == i) {
+                    for(var j = 0; j < n; j++) {
+                        if((bit & (1 << j)) == 0 && A[i][j] == 1) {
+                            dp[bit | (1 << j)] = dp[bit | (1 << j)].add(dp[bit]);
+                        }
+                    }
+                }
             }
         }
-        out.println(result[n]);
+        out.println(dp[ALL - 1]);
     }
 }
 
