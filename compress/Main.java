@@ -495,7 +495,7 @@ class FWriter {
     }
 
     FWriter println(Throwable e) {
-        println(e.getMessage());
+        println(e.toString());
         for (StackTraceElement el : e.getStackTrace()) {
             print("    ").println(el.toString());
         }

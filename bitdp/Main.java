@@ -274,11 +274,20 @@ class TwoKeyMap<K, V> {
         return this;
     }
 
+    TwoKeyMap<K, V> put(K[] key, V value) {
+        return put(key[0], key[1], value);
+    }
+
     TwoKeyMap<K, V> merge(K key1, K key2, V value,
             java.util.function.BiFunction<? super V, ? super V, ? extends V> remappingFunction) {
         _key2Set.add(key2);
         map.computeIfAbsent(key1, (f) -> new HashMap<K, V>()).merge(key2, value, remappingFunction);
         return this;
+    }
+
+    TwoKeyMap<K, V> merge(K[] key, V value,
+            java.util.function.BiFunction<? super V, ? super V, ? extends V> remappingFunction) {
+        return merge(key[0], key[1], value, remappingFunction);
     }
 
     V get(K key1, K key2) {
@@ -290,6 +299,10 @@ class TwoKeyMap<K, V> {
 
     Map<K, V> get(K key1) {
         return map.get(key1);
+    }
+
+    V get(K[] key) {
+        return get(key[0], key[1]);
     }
 
     V computeIfAbsent(K key1, K key2, java.util.function.Function<? super K, ? extends V> mappingFunction) {
@@ -491,6 +504,8 @@ class FWriter {
 
     final byte SP = (byte) ' ', LF = (byte) '\n', HYPHEN = (byte) '-';
 
+    boolean isDebug = false;
+
     FWriter(OutputStream out) {
         this.out = out;
     }
@@ -689,13 +704,61 @@ class FWriter {
     }
 
     FWriter println(Throwable e) {
-        println(e.getMessage());
+        println(e.toString());
         for (StackTraceElement el : e.getStackTrace()) {
             print("    ").println(el.toString());
         }
         if (e.getCause() != null) {
             println(e.getCause());
         }
+        return this;
+    }
+
+    void enableDebug() {
+        this.isDebug = true;
+    }
+
+    private void _debug(Object o, int indent) {
+        if(o == null) {
+            for(var i = 0; i < indent; i++) print(' ');
+            print("null");
+        } else if(o.getClass().isArray()) {
+            for(int i = 0; i < java.lang.reflect.Array.getLength(o); i++) {
+                println();
+                _debug(java.lang.reflect.Array.get(o, i), indent + 2);
+            }
+            return;
+        } else if(o instanceof Collection) {
+            for(var item : (Collection<?>)o) {
+                println();
+                _debug(item, indent + 2);
+            }
+        } else if(o instanceof Map) {
+            for(var i = 0; i < indent; i++) print(' ');
+            println('{');
+            for(var entry : ((Map<?,?>)o).entrySet()) {
+                for(var i = 0; i < indent + 2; i++) print(' ');
+                _debug(entry.getKey(), 0);
+                _debug("  ", 0);
+                _debug(entry.getValue(), 0);
+                println();
+            }
+            for(var i = 0; i < indent; i++) print(' ');
+            println('}');
+            return;
+        }
+        for(var i = 0; i < indent; i++) print(' ');
+        print(o);
+    }
+
+    FWriter debug(Object... os) {
+        if(!isDebug) return this;
+        print("[DEBUG:").print(Thread.currentThread().getStackTrace()[2].getLineNumber()).print("]:  ");
+        for(var o : os) {
+            _debug(o, 0);
+            print(' ');
+        }
+        print("  :[DEBUG:").print(Thread.currentThread().getStackTrace()[2].getLineNumber()).println("]");
         return this;
     }
 }
