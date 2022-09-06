@@ -3,17 +3,25 @@ import java.io.*;
 
 class Solver {
     static void solve(FScanner sc, FWriter out) {
-        sc.nextIntArrayStream(sc.nextInt(), 2).forEach(line -> {
-            out.print("permutation").print(line[0]).print(':').print(line[1]).print(':')
-                    .println(ModInt.permutations(line[0], line[1]));
-            out.print("permutation").print(line[0]).print(':').print(line[1]).print(':')
-                    .println(ModInt.combination(line[0], line[1]));
-        });
+        var n = sc.nextInt();
+        ModInt[] result = new ModInt[n + 1];
+        result[0] = ModInt.valueOf(1);
+        for(var i = 0; i < n; i++){
+            result[i + 1] = ModInt.valueOf(0);
+        }
+        for(var i = 0; i < n; i++) {
+            var a = sc.nextInt();
+            for(var j = 1; j <= a; j++) {
+                result[i + j] = result[i].mul(2);
+            }
+        }
+        out.println(result[n]);
     }
 }
 
 class ModInt extends Number {
     static final int MOD = 1000000007;
+    // static final int MOD = 998244353;
     static final int MEMO_SIZE = 1024;
     static List<ModInt> memoFactrial;
     static Map<Integer, ModInt> memoInverse = new HashMap<>();
@@ -158,18 +166,22 @@ class ModInt extends Number {
     }
 
     ModInt add(Number b) {
+        if(b == null) return this;
         return add(b.intValue());
     }
 
     ModInt sub(Number b) {
+        if(b == null) return this;
         return sub(b.intValue());
     }
 
     ModInt mul(Number b) {
+        if(b == null) return this;
         return mul(b.intValue());
     }
 
     ModInt div(Number b) {
+        if(b == null) return this;
         return div(b.intValue());
     }
 
@@ -682,7 +694,7 @@ class FWriter {
     }
 
     FWriter println(Throwable e) {
-        println(e.getMessage());
+        println(e.toString());
         for (StackTraceElement el : e.getStackTrace()) {
             print("    ").println(el.toString());
         }

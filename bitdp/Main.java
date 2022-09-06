@@ -3,40 +3,249 @@ import java.io.*;
 
 class Solver {
     static void solve(FScanner sc, FWriter out) {
-        int n = sc.nextInt();
-        int[] A = sc.nextIntArray(n);
-        var set = new HashSet<Integer>();
-        for(var a : A) {
-            set.add(a);
+        var n = sc.nextInt();
+        var ALL = 1 << n;
+        var A = new int[n][];
+        for(var i = 0; i < n; i++) {
+            A[i] = sc.nextIntArray(n);
         }
-        var compress = new Compress<Integer>(set);
-        for(var a : A) {
-            out.println(compress.get(a));
+        ModInt[] dp = new ModInt[ALL];
+        for(var bit = 1; bit < ALL; bit++) {
+            dp[bit] = ModInt.valueOf(0);
         }
+        dp[0] = ModInt.valueOf(1);
+        for(var i = 0; i < n; i++) {
+            for(var bit = 0; bit < ALL; bit++) {
+                if(Integer.bitCount(bit) == i) {
+                    for(var j = 0; j < n; j++) {
+                        if((bit & (1 << j)) == 0 && A[i][j] == 1) {
+                            dp[bit | (1 << j)] = dp[bit | (1 << j)].add(dp[bit]);
+                        }
+                    }
+                }
+            }
+        }
+        out.println(dp[ALL - 1]);
     }
 }
 
-class Compress<K extends Comparable<K>> {
-    Map<K, Integer> map;
-    int index = 0;
+class ModInt extends Number {
+    static final int MOD = 1000000007;
+    // static final int MOD = 998244353;
+    static final int MEMO_SIZE = 1024;
+    static List<ModInt> memoFactrial;
+    static Map<Integer, ModInt> memoInverse = new HashMap<>();
+    static ModInt memoModInt[];
 
-    Compress(Collection<K> c) {
-        map = new HashMap<>();
-        put(c);
+    int value;
+
+    static {
+        memoModInt = new ModInt[MEMO_SIZE];
+        memoFactrial = new ArrayList<ModInt>();
+        memoFactrial.add(ModInt.valueOf(1));
     }
 
-    void put(Collection<K> c) {
-        Set<K> set = new TreeSet<>(c);
-        for(var k : set) {
-            if(!map.containsKey(k)) {
-                map.put(k, index);
-                index++;
-            }
+    static int add(int a, int b) {
+        int result = a + b;
+        return result > MOD ? result - MOD : result;
+    }
+
+    static int sub(int a, int b) {
+        int result = a - b;
+        return result < 0 ? result + MOD : result;
+    }
+
+    static int mul(int a, int b) {
+        long result = (long) a * b;
+        return (int) (result % MOD);
+    }
+
+    static int pow(int a, int b) {
+        int r = 1;
+        int x = a;
+        while (b > 0) {
+            if ((b & 1) == 1)
+                r = mul(r, x);
+            x = mul(x, x);
+            b >>= 1;
+        }
+        return r;
+    }
+
+    static int inverse(int a) {
+        if (memoInverse.containsKey(a)) {
+            return memoInverse.get(a).intValue();
+        } else {
+            ModInt inverse = ModInt.valueOf(pow(a, MOD - 2));
+            memoInverse.put(a, inverse);
+            return inverse.intValue();
         }
     }
 
-    Integer get(K k) {
-        return map.get(k);
+    static int div(int a, int b) {
+        return mul(a, inverse(b));
+    }
+
+    static ModInt factrial(int n) {
+        for (int i = memoFactrial.size(); i <= n; i++) {
+            memoFactrial.add(memoFactrial.get(i - 1).mul(i));
+        }
+        return memoFactrial.get(n);
+    }
+
+    static Map<Integer, List<ModInt>> memoConbination = new TreeMap<>();
+
+    static ModInt combination(int n, int r) {
+        if (n < 1 || r < 1 || n < r)
+            return ModInt.valueOf(0);
+
+        if (n == r)
+            return ModInt.valueOf(1);
+
+        // nが小さい場合は公式を使う
+        if (n < 51000)
+            return factrial(n).div(factrial(r).mul(factrial(n - r)));
+
+        // nCr = nC(n - r)、計算量が少ない方を選ぶ
+        if (r > n - r)
+            r = n - r;
+        List<ModInt> result;
+        if (!memoConbination.containsKey(n)) {
+            // 初期値はnC0 = 0, nC1 = n
+            result = Arrays.asList(ModInt.valueOf(0), ModInt.valueOf(n));
+            memoConbination.put(n, result);
+        } else {
+            result = memoConbination.get(n);
+        }
+        for (int i = result.size(); i <= r; i++) {
+            // nC(r) = nC(r - 1) * (n - r + 1) / r
+            result.add(result.get(i - 1).mul(n - i + 1).div(i));
+        }
+        return result.get(r);
+    }
+
+    static Map<Integer, List<ModInt>> memoPermutations = new TreeMap<>();
+
+    static ModInt permutations(int n, int r) {
+        if (n < 1 || r < 1 || n < r)
+            return ModInt.valueOf(0);
+
+        if (n == r)
+            return ModInt.valueOf(1);
+
+        // nが小さい場合は公式を使う
+        if (n < 51000)
+            return factrial(n).div(factrial(n - r));
+
+        // nCr = nC(n - r)、計算量が少ない方を選ぶ
+        if (r > n - r)
+            r = n - r;
+        List<ModInt> result;
+        if (!memoPermutations.containsKey(n)) {
+            // 初期値はnC0 = 0, nC1 = n
+            result = Arrays.asList(ModInt.valueOf(0), ModInt.valueOf(n));
+            memoPermutations.put(n, result);
+        } else {
+            result = memoPermutations.get(n);
+        }
+        for (int i = result.size(); i <= r; i++) {
+            // nC(r) = nC(r - 1) * (n - r + 1)
+            result.add(result.get(i - 1).mul(n - i + 1));
+        }
+        return result.get(r);
+    }
+
+    static ModInt combination(Number n, Number r) {
+        return combination(n, r);
+    }
+
+    ModInt add(int b) {
+        return ModInt.valueOf(ModInt.add(value, b));
+    }
+
+    ModInt sub(int b) {
+        return ModInt.valueOf(ModInt.sub(value, b));
+    }
+
+    ModInt mul(int b) {
+        return ModInt.valueOf(ModInt.mul(value, b));
+    }
+
+    ModInt div(int b) {
+        return ModInt.valueOf(ModInt.div(value, b));
+    }
+
+    ModInt add(Number b) {
+        if(b == null) return this;
+        return add(b.intValue());
+    }
+
+    ModInt sub(Number b) {
+        if(b == null) return this;
+        return sub(b.intValue());
+    }
+
+    ModInt mul(Number b) {
+        if(b == null) return this;
+        return mul(b.intValue());
+    }
+
+    ModInt div(Number b) {
+        if(b == null) return this;
+        return div(b.intValue());
+    }
+
+    static ModInt valueOf(int value) {
+        if (value < MEMO_SIZE) {
+            return memoModInt[value] = memoModInt[value] != null ? memoModInt[value] : new ModInt(value);
+        }
+        return new ModInt(value);
+    }
+
+    static ModInt valueOf(Number value) {
+        return valueOf(value.intValue());
+    }
+
+    public ModInt(int value) {
+        this.value = value;
+    }
+
+    public int intValue() {
+        return value;
+    }
+
+    public long longValue() {
+        return value;
+    }
+
+    public float floatValue() {
+        return value;
+    }
+
+    public double doubleValue() {
+        return value;
+    }
+
+    @Override
+    public int hashCode() {
+        return value;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (!(obj instanceof Number))
+            return false;
+        Number other = (Number) obj;
+        return value == other.intValue();
+    }
+
+    @Override
+    public String toString() {
+        return String.valueOf(value);
     }
 }
 
