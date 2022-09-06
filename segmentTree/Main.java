@@ -3,63 +3,96 @@ import java.io.*;
 
 class Solver {
     static void solve(FScanner sc, FWriter out) {
-        XY[] xy = new XY[4];
-        for (var i = 0; i < 4; i++) {
-            xy[i] = new XY(sc.nextLong(), sc.nextLong());
+        // out.enableDebug();
+        int n = sc.nextInt();
+        long A[] = sc.nextLongArray(n);
+        var seg = new SegmentTree(A, 0L, MathLib::gcd);
+        long result = 9;
+        for(var i = 0; i <= n; i++) {
+            long g = 0;
+            g = MathLib.gcd(g, seg.query(0, i));
+            g = MathLib.gcd(g, seg.query(i + 1, n));
+            result = Math.max(result, g);
         }
-
-        for (var i = 0; i < 4; i++) {
-            var s1 = xy[i].deg(i == 0 ? xy[3] : xy[i - 1]);
-            var s2 = xy[i].deg(i == 3 ? xy[0] : xy[i + 1]);
-            var tmp = (s1 - s2) % 360;
-            if (tmp < 0)
-                tmp = 360 + tmp;
-            // out.println(tmp);
-            if (tmp > 180) {
-                out.println("No");
-                return;
-            }
-        }
-
-        out.println("Yes");
+        out.println(result);
     }
 }
 
-class XY {
-    long x;
-    long y;
+class SegmentTree {
+    long[] tree;
+    Long initValue;
+    int size;
+    java.util.function.LongBinaryOperator processingFunction;
 
-    XY(long x, long y) {
-        this.x = x;
-        this.y = y;
-    }
+    SegmentTree(long[] v, Long initValue, java.util.function.LongBinaryOperator processingFunction) {
+        this.initValue = initValue;
+        this.processingFunction = processingFunction;
+        size = v.length;
 
-    double slope(XY b) {
-        var dx = b.x - x;
-        if (dx == 0) {
-            if (b.y == y) {
-                return 0;
-            } else if (b.y - y > 0) {
-                return Double.POSITIVE_INFINITY;
-            }
-            return Double.NEGATIVE_INFINITY;
+        var n = 1;
+        while (n < size) {
+            n <<= 1;
         }
-        return (1.0 * (b.y - y)) / dx;
+
+        tree = new long[2 * n];
+        Arrays.fill(tree, initValue);
+        
+        // 直接値が入るのは、index + (n - 1)
+        for (int i = 0; i < size; i++) {
+            tree[i + n - 1] = v[i];
+        }
+
+        // 親：(i - 1) / 2
+        // 左の子：2 * i + 1
+        // 右の子：左の子 + 1
+        for (int i = n - 2; i >= 0; i--) {
+            updateNode(i);
+        }
     }
 
-    double rad(XY b) {
-        return Math.atan2(b.y - y, b.x - x);
+    static SegmentTree RmQ(long[] v) {
+        return new SegmentTree(v, Long.MAX_VALUE, Math::min);
     }
 
-    double deg(XY b) {
-        return MathLib.radToDeg(rad(b));
+    static SegmentTree RMQ(long[] v) {
+        return new SegmentTree(v, Long.MIN_VALUE, Math::max);
     }
 
-    @Override
-    public String toString() {
-        return "XY [x=" + x + ", y=" + y + "]";
+    static SegmentTree RSQ(long[] v) {
+        return new SegmentTree(v, Long.MIN_VALUE, (a,b) -> a + b);
+    }
+
+    static SegmentTree RSQMod(long[] v, int mod) {
+        return new SegmentTree(v, Long.MIN_VALUE, (a,b) -> (a + b) % mod);
+    }
+
+    // i番目の値をvalに変更する
+    void update(int i, Long val) {
+        i += (tree.length / 2 - 1);
+        tree[i] = val;
+        for (i = (i - 1) / 2; i > 0; i = (i - 1)) {
+            updateNode(i);
+        }
+    }
+    
+    void updateNode(int i) {
+        tree[i] = processingFunction.applyAsLong(tree[2 * i + 1], tree[2 * i + 2]);
+    }
+
+    Long query(int a, int b) {
+        Long val_left = Long.MAX_VALUE, val_right = Long.MAX_VALUE;
+        for (a += (tree.length / 2 - 1), b += (tree.length / 2 - 1); a < b; a >>= 1, b >>= 1) {
+            if ((a & 1) == 0) {
+                val_left = processingFunction.applyAsLong(val_left, tree[a]);
+            }
+            if ((b & 1) == 0) {
+                val_right = processingFunction.applyAsLong(val_right, tree[--b]);
+            }
+        }
+        return processingFunction.applyAsLong(val_left, val_right);
     }
 }
+
 
 class MathLib {
     public static long gcd(long a, long b) {
