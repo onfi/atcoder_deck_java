@@ -7,7 +7,7 @@ class Solver {
         int n = sc.nextInt();
         long A[] = sc.nextLongArray(n);
         var seg = new SegmentTree(A, 0L, MathLib::gcd);
-        long result = 9;
+        long result = 0;
         for(var i = 0; i <= n; i++) {
             long g = 0;
             g = MathLib.gcd(g, seg.query(0, i));
@@ -19,36 +19,36 @@ class Solver {
 }
 
 class SegmentTree {
-    long[] tree, imos;
+    long[] tree;
     Long initValue;
-    int size;
+    int size, n;
     boolean needEval;
     java.util.function.LongBinaryOperator processingFunction;
+
+    long[] imos;
+    int imosL = Integer.MAX_VALUE, imosR = -1;
+    TreeSet<Integer> queue = new TreeSet<>();
 
     SegmentTree(long[] v, Long initValue, java.util.function.LongBinaryOperator processingFunction) {
         this.initValue = initValue;
         this.processingFunction = processingFunction;
         size = v.length;
-        imos = new long[v.length];
+        imos = new long[v.length + 1];
 
-        var n = 1;
+        n = 1;
         while (n < size) {
             n <<= 1;
-        }
-
-        tree = new long[2 * n];
-        Arrays.fill(tree, initValue);
-        
-        // 直接値が入るのは、index + (n - 1)
-        for (int i = 0; i < size; i++) {
-            tree[i + n - 1] = v[i];
         }
 
         // 親：(i - 1) / 2
         // 左の子：2 * i + 1
         // 右の子：左の子 + 1
-        for (int i = n - 2; i >= 0; i--) {
-            updateNode(i);
+        tree = new long[2 * n];
+        Arrays.fill(tree, initValue);
+        
+        // 直接値が入るのは、index + (n - 1)
+        for (int i = 0; i < size; i++) {
+            update(i, v[i]);
         }
     }
 
@@ -68,63 +68,86 @@ class SegmentTree {
         return new SegmentTree(v, Long.MIN_VALUE, (a,b) -> (a + b) % mod);
     }
 
+    int valueIndex(int i) {
+        return i + (n - 1);
+    }
+
+    int parentIndex(int index) {
+        return (index - 1) / 2;
+    }
+
+    int leftChildIndex(int index) {
+        return 2 * index + 1;
+    }
+
+    int rightChildIndex(int index) {
+        return 2 * index + 2;
+    }
+
     // i番目の値をvalに変更する
     void update(int i, Long val) {
-        i += (tree.length / 2 - 1);
-        tree[i] = val;
-        for (i = (i - 1) / 2; i > 0; i = (i - 1)) {
-            updateNode(i);
-        }
+        tree[valueIndex(i)] = val;
+        lazyUpdate(i);
+        needEval = true;
     }
-    
+
+    void lazyUpdate(int i) {
+        queue.add(parentIndex(valueIndex(i)));
+    }
+
     void updateNode(int i) {
-        tree[i] = processingFunction.applyAsLong(tree[2 * i + 1], tree[2 * i + 2]);
+        tree[i] = processingFunction.applyAsLong(tree[leftChildIndex(i)], tree[rightChildIndex(i)]);
     }
 
     void add(int l, int r, long val) {
         imos[l] += val;
         imos[r] -= val;
         needEval = true;
+        if(imosL > l) imosL = l;
+        if(imosR < r) imosR = r;
     }
 
-    void eval() {
+    void imosEval() {
         long tmp = 0;
-        int n = tree.length / 2;
-        TreeSet<Integer> queue = new TreeSet<>();
-        for(var i = 0; i < imos.length; i++) {
+        for(var i = imosL; i < imosR; i++) {
             tmp += imos[i];
             imos[i] = 0;
             if(tmp != 0) {
-                tree[i + n - 1] += tmp;
-                queue.add(i + n - 1);
+                tree[valueIndex(i)] += tmp;
+                lazyUpdate(i);
             }
         }
+        imosL = Integer.MAX_VALUE;
+        imosR = -1;
+    }
+
+    void eval() {
+        imosEval();
         while(!queue.isEmpty()) {
             var i = queue.pollLast();
             updateNode(i);
-            if(i > 0) queue.add((i - 1) / 2);
+            if(i > 0) queue.add(parentIndex(i));
         }
-
-        needEval = true;
+        needEval = false;
     }
 
     Long query(int a, int b) {
         if(needEval) eval();
-        Long val_left = Long.MAX_VALUE, val_right = Long.MAX_VALUE;
-        for (a += (tree.length / 2 - 1), b += (tree.length / 2 - 1); a < b; a >>= 1, b >>= 1) {
-            if ((a & 1) == 0) {
-                val_left = processingFunction.applyAsLong(val_left, tree[a]);
+        Long valLeft = initValue, valRight = initValue;
+        for (int left = a + (n - 1), right = b + (n - 1); left < right; left >>= 1, right >>= 1) {
+            if ((left & 1) == 0) {
+                valLeft = processingFunction.applyAsLong(valLeft, tree[left]);
             }
-            if ((b & 1) == 0) {
-                val_right = processingFunction.applyAsLong(val_right, tree[--b]);
+            if ((right & 1) == 0) {
+                valRight = processingFunction.applyAsLong(valRight, tree[--right]);
             }
         }
-        return processingFunction.applyAsLong(val_left, val_right);
+        return processingFunction.applyAsLong(valLeft, valRight);
     }
 
     long get(int i) {
-        if(needEval) eval();
-        return tree[i + tree.length / 2 - 1];
+        imosEval();
+        return tree[valueIndex(i)];
     }
 }
 
