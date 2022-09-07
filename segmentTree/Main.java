@@ -7,7 +7,7 @@ class Solver {
         int n = sc.nextInt();
         long A[] = sc.nextLongArray(n);
         var seg = new SegmentTree(A, 0L, MathLib::gcd);
-        long result = 9;
+        long result = 0;
         for(var i = 0; i <= n; i++) {
             long g = 0;
             g = MathLib.gcd(g, seg.query(0, i));
@@ -80,7 +80,7 @@ class SegmentTree {
     }
 
     Long query(int a, int b) {
-        Long val_left = Long.MAX_VALUE, val_right = Long.MAX_VALUE;
+        Long val_left = initValue, val_right = initValue;
         for (a += (tree.length / 2 - 1), b += (tree.length / 2 - 1); a < b; a >>= 1, b >>= 1) {
             if ((a & 1) == 0) {
                 val_left = processingFunction.applyAsLong(val_left, tree[a]);

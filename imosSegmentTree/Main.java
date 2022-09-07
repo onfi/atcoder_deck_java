@@ -46,9 +46,14 @@ class SegmentTree {
         tree = new long[2 * n];
         Arrays.fill(tree, initValue);
         
+
         // 直接値が入るのは、index + (n - 1)
         for (int i = 0; i < size; i++) {
-            update(i, v[i]);
+            tree[i + n - 1] = v[i];
+        }
+
+        for (int i = n - 2; i >= 0; i--) {
+            updateNode(i);
         }
     }
 
@@ -124,9 +129,9 @@ class SegmentTree {
     void eval() {
         imosEval();
         while(!queue.isEmpty()) {
-            var i = queue.pollLast();
-            updateNode(i);
-            if(i > 0) queue.add(parentIndex(i));
+            var index = queue.pollLast();
+            updateNode(index);
+            if(index > 0) queue.add(parentIndex(index));
         }
         needEval = false;
     }
