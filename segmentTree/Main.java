@@ -5,16 +5,15 @@ class Solver {
     static void solve(FScanner sc, FWriter out) {
         // out.enableDebug();
         int n = sc.nextInt();
+        int H[] = sc.nextIntArray(n);
         long A[] = sc.nextLongArray(n);
-        var seg = new SegmentTree(A, 0L, MathLib::gcd);
-        long result = 0;
-        for(var i = 0; i <= n; i++) {
-            long g = 0;
-            g = MathLib.gcd(g, seg.query(0, i));
-            g = MathLib.gcd(g, seg.query(i + 1, n));
-            result = Math.max(result, g);
+
+        var seg = SegmentTree.RMQ(new long[n + 1]);
+
+        for(var i = 0; i < n; i++) {
+            seg.update(H[i], seg.query(0, H[i]) + A[i]);
         }
-        out.println(result);
+        out.println(seg.query(0, n + 1));
     }
 }
 
@@ -68,11 +67,13 @@ class SegmentTree {
 
     // i番目の値をvalに変更する
     void update(int i, Long val) {
-        i += (tree.length / 2 - 1);
+        i = i + tree.length / 2 - 1;
         tree[i] = val;
-        for (i = (i - 1) / 2; i > 0; i = (i - 1)) {
+
+        for (i = (i - 1) / 2; i > 0; i = (i - 1) / 2) {
             updateNode(i);
         }
+        updateNode(i);
     }
     
     void updateNode(int i) {
