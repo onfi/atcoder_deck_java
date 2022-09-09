@@ -165,6 +165,10 @@ class ModInt extends Number {
         return ModInt.valueOf(ModInt.div(value, b));
     }
 
+    ModInt pow(int b) {
+        return ModInt.valueOf(ModInt.pow(value, b));
+    }
+
     ModInt add(Number b) {
         if(b == null) return this;
         return add(b.intValue());
@@ -183,6 +187,11 @@ class ModInt extends Number {
     ModInt div(Number b) {
         if(b == null) return this;
         return div(b.intValue());
+    }
+
+    ModInt pow(Number b) {
+        if(b == null) return this;
+        return pow(b.intValue());
     }
 
     static ModInt valueOf(int value) {
