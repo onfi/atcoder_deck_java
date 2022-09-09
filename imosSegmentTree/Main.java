@@ -65,11 +65,11 @@ class SegmentTree {
     }
 
     static SegmentTree RSQ(long[] v) {
-        return new SegmentTree(v, Long.MIN_VALUE, (a,b) -> a + b);
+        return new SegmentTree(v, 0L, (a,b) -> a + b);
     }
 
     static SegmentTree RSQMod(long[] v, int mod) {
-        return new SegmentTree(v, Long.MIN_VALUE, (a,b) -> (a + b) % mod);
+        return new SegmentTree(v, 0L, (a,b) -> (a + b) % mod);
     }
 
     int valueIndex(int i) {
