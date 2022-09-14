@@ -83,6 +83,27 @@ class MathLib {
         return m * n / gcd(m, n);
     }
 
+    public static java.math.BigInteger gcd(java.math.BigInteger a, java.math.BigInteger b) {
+        java.math.BigInteger c = b;
+        b = a;
+        do {
+            a = b;
+            b = c;
+            if (a.compareTo(b) < 0) {
+                java.math.BigInteger tmp = a;
+                a = b;
+                b = tmp;
+            }
+            if(b.equals(java.math.BigInteger.ZERO)) return a;
+            c = a.mod(b);
+        } while (!c.equals(java.math.BigInteger.ZERO));
+        return b;
+    }
+
+    public static java.math.BigInteger lcm(java.math.BigInteger m, java.math.BigInteger n) {
+        return m.multiply(n).divide(gcd(m, n));
+    }
+
     public static long sign(long x) {
         if (x == 0)
             return 0;
