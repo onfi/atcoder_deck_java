@@ -195,6 +195,7 @@ class ModInt extends Number {
     }
 
     static ModInt valueOf(int value) {
+        value %= MOD;
         if (value < MEMO_SIZE) {
             return memoModInt[value] = memoModInt[value] != null ? memoModInt[value] : new ModInt(value);
         }
