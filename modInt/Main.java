@@ -3,19 +3,13 @@ import java.io.*;
 
 class Solver {
     static void solve(FScanner sc, FWriter out) {
-        var n = sc.nextInt();
-        ModInt[] result = new ModInt[n + 1];
-        result[0] = ModInt.valueOf(1);
-        for(var i = 0; i < n; i++){
-            result[i + 1] = ModInt.valueOf(0);
+        long n = sc.nextLong();
+        int k = sc.nextInt();
+        if(n == 1) {
+            out.println(k);
+        } else {
+            out.println(ModInt.valueOf(k).mul(k - 1).mul(ModInt.valueOf(k - 2).pow(n - 2).value));
         }
-        for(var i = 0; i < n; i++) {
-            var a = sc.nextInt();
-            for(var j = 1; j <= a; j++) {
-                result[i + j] = result[i].mul(2);
-            }
-        }
-        out.println(result[n]);
     }
 }
 
@@ -46,11 +40,11 @@ class ModInt extends Number {
     }
 
     static int mul(int a, int b) {
-        long result = (long) a * b;
+        long result = ((long) a) * b;
         return (int) (result % MOD);
     }
 
-    static int pow(int a, int b) {
+    static int pow(int a, long b) {
         int r = 1;
         int x = a;
         while (b > 0) {
@@ -150,51 +144,72 @@ class ModInt extends Number {
     }
 
     ModInt add(int b) {
-        return ModInt.valueOf(ModInt.add(value, b));
+        return ModInt.valueOf(ModInt.add(value, b % MOD));
     }
 
     ModInt sub(int b) {
-        return ModInt.valueOf(ModInt.sub(value, b));
+        return ModInt.valueOf(ModInt.sub(value, b % MOD));
     }
 
     ModInt mul(int b) {
-        return ModInt.valueOf(ModInt.mul(value, b));
+        return ModInt.valueOf(ModInt.mul(value, b % MOD));
     }
 
     ModInt div(int b) {
-        return ModInt.valueOf(ModInt.div(value, b));
+        return ModInt.valueOf(ModInt.div(value, b % MOD));
     }
 
     ModInt pow(int b) {
         return ModInt.valueOf(ModInt.pow(value, b));
     }
 
-    ModInt add(Number b) {
+    ModInt add(long b) {
+        return ModInt.valueOf(ModInt.add(value, (int)(b % MOD)));
+    }
+
+    ModInt sub(long b) {
+        return ModInt.valueOf(ModInt.sub(value, (int)(b % MOD)));
+    }
+
+    ModInt mul(long b) {
+        return ModInt.valueOf(ModInt.mul(value, (int)(b % MOD)));
+    }
+
+    ModInt div(long b) {
+        return ModInt.valueOf(ModInt.div(value, (int)(b % MOD)));
+    }
+
+    ModInt pow(long b) {
+        return ModInt.valueOf(ModInt.pow(value, b));
+    }
+
+    ModInt add(ModInt b) {
         if(b == null) return this;
         return add(b.intValue());
     }
 
-    ModInt sub(Number b) {
+    ModInt sub(ModInt b) {
         if(b == null) return this;
         return sub(b.intValue());
     }
 
-    ModInt mul(Number b) {
+    ModInt mul(ModInt b) {
         if(b == null) return this;
         return mul(b.intValue());
     }
 
-    ModInt div(Number b) {
+    ModInt div(ModInt b) {
         if(b == null) return this;
         return div(b.intValue());
     }
 
-    ModInt pow(Number b) {
+    ModInt pow(ModInt b) {
         if(b == null) return this;
         return pow(b.intValue());
     }
 
     static ModInt valueOf(int value) {
+        if(value < 0) value += (value / MOD + 1) * MOD;
         value %= MOD;
         if (value < MEMO_SIZE) {
             return memoModInt[value] = memoModInt[value] != null ? memoModInt[value] : new ModInt(value);
@@ -202,8 +217,12 @@ class ModInt extends Number {
         return new ModInt(value);
     }
 
+    static ModInt valueOf(long value) {
+        return valueOf((int)(value % MOD));
+    }
+
     static ModInt valueOf(Number value) {
-        return valueOf(value.intValue());
+        return valueOf(value.longValue());
     }
 
     public ModInt(int value) {
