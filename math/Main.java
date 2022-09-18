@@ -125,9 +125,11 @@ public class Main {
             Solver.solve(sc, out);
         } catch (Throwable e) {
             out.println(e);
+            System.exit(1);
+        } finally {
+            out.flush();
+            sc.close();
         }
-        out.flush();
-        sc.close();
     }
 }
 

@@ -4,27 +4,30 @@ import java.io.*;
 class Solver {
     static void solve(FScanner sc, FWriter out) {
         // out.enableDebug();
-        int n = sc.nextInt();
-        int[] A = sc.nextIntArray(n);
-        long[][] dp = new long[n][n]; // 累積和
-        long[][] dp2 = new long[n][n]; // 本来のDP
-        for(var i = 0; i < n; i++) {
-            dp[i][i] = A[i];
-        }
-        for(var len = 1; len < n; len++) {
-            for(var i = 0; i < n - len; i++) {
-                dp[i][i + len] = dp[i][i + len - 1] + A[i + len];
-                dp2[i][i + len] = Long.MAX_VALUE;
-                for(var j = i; j < i + len; j++) {
-                    out.debug(i, j, j+1,i+len);
-                    dp2[i][i + len] = Math.min(dp2[i][i + len], dp2[i][j] + dp2[j + 1][i + len] + dp[i][i + len]);
-                }
-            }
-        }
-
+        int n = sc.nextInt(), q = sc.nextInt();
+        long[] A = sc.nextLongArray(n);
+        long[] Fuben = new long[n + 1];
         long result = 0;
-
-        out.println(dp2[0][n - 1]);
+        for(var i = 1; i < n; i++) {
+            Fuben[i] = A[i] - A[i - 1];
+            result += Math.abs(Fuben[i]);
+        }
+        for(var i = 0; i < q; i++) {
+            int l = sc.nextInt(), r = sc.nextInt();
+            long v = sc.nextLong();
+            l--;r--;
+            if(l > 0) {
+                result -= Fuben[l];
+                Fuben[l] += v;
+                result += Math.abs(Fuben[l]);
+            }
+            if(r < n - 1) {
+                result -= Fuben[r + 1];
+                Fuben[r + 1] -= v;
+                result += Math.abs(Fuben[r + 1]);
+            }
+            out.println(result);
+        }
     }
 }
 
@@ -38,9 +41,11 @@ public class Main {
             Solver.solve(sc, out);
         } catch (Throwable e) {
             out.println(e);
+            System.exit(1);
+        } finally {
+            out.flush();
+            sc.close();
         }
-        out.flush();
-        sc.close();
     }
 }
 
