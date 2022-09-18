@@ -2,12 +2,35 @@ import java.util.*;
 import java.io.*;
 
 class Solver {
-    static void solve(FScanner sc, FWriter out) {
-        sc.nextLongStream(sc.nextInt())
-                .mapToObj(x -> Prime.factorize(x).entrySet().stream()
-                        .map(entry -> entry.getKey() + ":" + entry.getValue())
-                        .collect(java.util.stream.Collectors.joining(",")))
-                .forEach(out::println);
+    void solve(FScanner sc, FWriter out) {
+        int h = sc.nextInt(), w = sc.nextInt();
+        int A[][] = new int[h][], B[][] = new int[h][];
+        for(var i = 0; i < h; i++) {
+            A[i] = sc.nextIntArray(w);
+        }
+        for(var i = 0; i < h; i++) {
+            B[i] = sc.nextIntArray(w);
+        }
+        long result = 0;
+        for(var i = 0; i < h; i++) {
+            for(var j = 0; j < w; j++) {
+                if(A[i][j] != B[i][j]) {
+                    if(i >= h - 1 || j >= w - 1) {
+                        out.println("No");
+                        return;
+                    } else {
+                        var diff = B[i][j] - A[i][j];
+                        result += Math.abs(diff);
+                        A[i][j] += diff;
+                        A[i][j + 1] += diff;
+                        A[i + 1][j] += diff;
+                        A[i + 1][j + 1] += diff;
+                    }
+                }
+            }
+        }
+        out.println("Yes");
+        out.println(result);
     }
 }
 
@@ -68,7 +91,7 @@ public class Main {
         FScanner sc = new FScanner(System.in);
         FWriter out = new FWriter(System.out);
         try {
-            Solver.solve(sc, out);
+            (new Solver()).solve(sc, out);
         } catch (Throwable e) {
             out.println(e);
             System.exit(1);

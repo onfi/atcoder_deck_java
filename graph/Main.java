@@ -2,7 +2,7 @@ import java.util.*;
 import java.io.*;
 
 class Solver {
-    static void solve(FScanner sc, FWriter out) {
+    void solve(FScanner sc, FWriter out) {
         // https://atcoder.jp/contests/typical-algorithm/tasks/typical_algorithm_d
         int n = sc.nextInt(), m = sc.nextInt();
         Graph<Integer, String> g = new Graph<>();
@@ -267,7 +267,7 @@ public class Main {
         FScanner sc = new FScanner(System.in);
         FWriter out = new FWriter(System.out);
         try {
-            Solver.solve(sc, out);
+            (new Solver()).solve(sc, out);
         } catch (Throwable e) {
             out.println(e);
             System.exit(1);

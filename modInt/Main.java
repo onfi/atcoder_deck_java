@@ -2,14 +2,19 @@ import java.util.*;
 import java.io.*;
 
 class Solver {
-    static void solve(FScanner sc, FWriter out) {
-        long n = sc.nextLong();
-        int k = sc.nextInt();
-        if(n == 1) {
-            out.println(k);
-        } else {
-            out.println(ModInt.valueOf(k).mul(k - 1).mul(ModInt.valueOf(k - 2).pow(n - 2).value));
+    void solve(FScanner sc, FWriter out) {
+        long l = sc.nextLong(), r = sc.nextLong();
+        ModInt result = ModInt.valueOf(0);
+        for(var i = String.valueOf(l).length() - 1; i <= String.valueOf(r).length() - 1; i++) {
+            long begin = 1;
+            for(var j = 0; j < i; j++) {
+                begin *= 10;
+            }
+            var end = ModInt.valueOf(Math.min(begin * 10 - 1, r));
+            var mbegin = ModInt.valueOf(Math.max(begin, l));
+            result = result.add(ModInt.sumOfArithmeticProgressions(end.sub(mbegin).add(1).intValue(), mbegin.mul(i + 1).intValue(), end.mul(i + 1).intValue()));
         }
+        out.println(result);
     }
 }
 
@@ -143,6 +148,16 @@ class ModInt extends Number {
         return combination(n, r);
     }
 
+    /* 
+     * 等差数列の和
+     * @param n 項数
+     * @param a 初項
+     * @param l 末項
+     */
+    static ModInt sumOfArithmeticProgressions(long n, long a, long l) {
+        return ModInt.valueOf(n).mul(ModInt.valueOf(a).add(l)).div(2);
+    }
+
     ModInt add(int b) {
         return ModInt.valueOf(ModInt.add(value, b % MOD));
     }
@@ -274,7 +289,7 @@ public class Main {
         FScanner sc = new FScanner(System.in);
         FWriter out = new FWriter(System.out);
         try {
-            Solver.solve(sc, out);
+            (new Solver()).solve(sc, out);
         } catch (Throwable e) {
             out.println(e);
             System.exit(1);

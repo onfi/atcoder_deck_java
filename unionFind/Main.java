@@ -2,7 +2,7 @@ import java.util.*;
 import java.io.*;
 
 class Solver {
-    static void solve(FScanner sc, FWriter out) {
+    void solve(FScanner sc, FWriter out) {
         int n = sc.nextInt(), q = sc.nextInt();
         UnionFind unionFind = new UnionFind(n + 1);
 
@@ -61,7 +61,7 @@ public class Main {
         FScanner sc = new FScanner(System.in);
         FWriter out = new FWriter(System.out);
         try {
-            Solver.solve(sc, out);
+            (new Solver()).solve(sc, out);
         } catch (Throwable e) {
             out.println(e);
             System.exit(1);
