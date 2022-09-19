@@ -4,18 +4,32 @@ import java.io.*;
 class Solver {
     void solve(FScanner sc, FWriter out) {
         // https://atcoder.jp/contests/typical-algorithm/tasks/typical_algorithm_d
-        int n = sc.nextInt(), m = sc.nextInt();
+        int n = sc.nextInt();
         Graph<Integer, String> g = new Graph<>();
         for (var i = 0; i < n; i++) {
             g.addNode(i);
         }
-        for (var i = 0; i < m; i++) {
+        for (var i = 0; i < n - 1; i++) {
             int u = sc.nextInt(), v = sc.nextInt();
-            long c = sc.nextLong();
-            g.addOneway(u, v, c);
+            u--;
+            v--;
+            g.addTwoway(u, v);
         }
-        var dijkstra = g.dijkstra(0, n - 1);
-        out.println(dijkstra.get(n - 1).cost);
+        var treeSize = g.treeSize(0);
+        Route<Integer> max = new Route<>(0, 0, 0);
+        for(var route : treeSize.values()) {
+            if(max.cost < route.cost) {
+                max = route;
+            }
+        }
+        var treeSize2 = g.treeSize(max.to);
+        max = new Route<>(max.to, max.to, 0);
+        for(var route : treeSize2.values()) {
+            if(max.cost < route.cost) {
+                max = route;
+            }
+        }
+        out.println(max.cost + 1);
     }
 }
 
@@ -27,6 +41,33 @@ class Edge<K> {
         this.to = to;
         this.cost = cost;
     }
+
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + (int) (cost ^ (cost >>> 32));
+        result = prime * result + ((to == null) ? 0 : to.hashCode());
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        Edge other = (Edge) obj;
+        if (to == null) {
+            if (other.to != null)
+                return false;
+        } else if (!to.equals(other.to))
+            return false;
+        return true;
+    }
+    
 }
 
 class Route<K> implements Comparable<Route<K>> {
@@ -258,6 +299,26 @@ class Graph<K extends Comparable<K>, V> {
             });
         }
         return sorted;
+    }
+
+    /**
+     * 木のサイズを出す
+     * 
+     * @param from 始点
+     * @return route
+     */
+    public Map<K, Route<K>> treeSize(K from) {
+        Map<K, Route<K>> result = new HashMap<>();
+        treeSizeDfs(from, from, from, 0, result);
+        return result;
+    }
+    private void treeSizeDfs(K from, K parent, K cur, long cost, Map<K, Route<K>> result) {
+        result.put(cur, new Route<>(from, cur, cost));
+        for(var to : edges.get(cur)) {
+            if(!parent.equals(to.to)) {
+                treeSizeDfs(from, cur, to.to, cost + to.cost, result);
+            }
+        }
     }
 }
 
