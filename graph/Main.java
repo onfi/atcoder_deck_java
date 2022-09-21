@@ -320,6 +320,24 @@ class Graph<K extends Comparable<K>, V> {
             }
         }
     }
+
+    /*
+     * dfsを何回もやらなくていいように、ソート順を出しておく
+     * tree構造のときは方向をつけないように気をつける
+     */
+    public List<K> treeSort(K start) {
+        List<K> list = new ArrayList<>(nodes.size());
+        treeSortDfs(start, start, list);
+        return list;
+    }
+    private void treeSortDfs(K cur, K parent, List<K> list) {
+        list.add(cur);
+        for(var edge : edges.get(cur)) {
+            if(!edge.to.equals(parent)) {
+                treeSortDfs(edge.to, cur, list);
+            }
+        }
+    }
 }
 
 // common
