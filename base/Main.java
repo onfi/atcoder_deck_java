@@ -4,30 +4,12 @@ import java.io.*;
 class Solver {
     void solve(FScanner sc, FWriter out) {
         // out.enableDebug();
-        int n = sc.nextInt(), q = sc.nextInt();
-        long[] A = sc.nextLongArray(n);
-        long[] Fuben = new long[n + 1];
-        long result = 0;
-        for(var i = 1; i < n; i++) {
-            Fuben[i] = A[i] - A[i - 1];
-            result += Math.abs(Fuben[i]);
+        int k = sc.nextInt();
+        if(k % 9 > 0) {
+            out.println(0);
+            return;
         }
-        for(var i = 0; i < q; i++) {
-            int l = sc.nextInt(), r = sc.nextInt();
-            long v = sc.nextLong();
-            l--;r--;
-            if(l > 0) {
-                result -= Fuben[l];
-                Fuben[l] += v;
-                result += Math.abs(Fuben[l]);
-            }
-            if(r < n - 1) {
-                result -= Fuben[r + 1];
-                Fuben[r + 1] -= v;
-                result += Math.abs(Fuben[r + 1]);
-            }
-            out.println(result);
-        }
+        
     }
 }
 
@@ -41,11 +23,11 @@ public class Main {
             (new Solver()).solve(sc, out);
         } catch (Throwable e) {
             out.println(e);
-            System.exit(1);
-        } finally {
             out.flush();
-            sc.close();
+            System.exit(1);
         }
+        out.flush();
+        sc.close();
     }
 }
 

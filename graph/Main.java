@@ -4,32 +4,37 @@ import java.io.*;
 class Solver {
     void solve(FScanner sc, FWriter out) {
         // https://atcoder.jp/contests/typical-algorithm/tasks/typical_algorithm_d
-        int n = sc.nextInt();
-        Graph<Integer, String> g = new Graph<>();
-        for (var i = 0; i < n; i++) {
-            g.addNode(i);
+        int h = sc.nextInt(), w = sc.nextInt();
+        int[] s = sc.nextIntArray(2), g = sc.nextIntArray(2);
+        s[0]--;
+        s[1]--;
+        g[0]--;
+        g[1]--;
+        char S[][] = new char[h][];
+        for(var i = 0; i < h; i++) {
+            S[i] = sc.next().toCharArray();
         }
-        for (var i = 0; i < n - 1; i++) {
-            int u = sc.nextInt(), v = sc.nextInt();
-            u--;
-            v--;
-            g.addTwoway(u, v);
-        }
-        var treeSize = g.treeSize(0);
-        Route<Integer> max = new Route<>(0, 0, 0);
-        for(var route : treeSize.values()) {
-            if(max.cost < route.cost) {
-                max = route;
+        Graph<Integer, String> G = new Graph<>();
+        for (var i = 0; i < h; i++) {
+            for(var j = 0; j < w; j++) {
+                G.addNode(index(i, j));
             }
         }
-        var treeSize2 = g.treeSize(max.to);
-        max = new Route<>(max.to, max.to, 0);
-        for(var route : treeSize2.values()) {
-            if(max.cost < route.cost) {
-                max = route;
+        for (var i = 0; i < h - 1; i++) {
+            for(var j = 0; j < w - 1; j++) {
+                if(S[i][j] != '.') continue;
+                for(var ii = i + 1; ii < h && S[ii][j] == '.'; ii++) {
+                    G.addTwoway(index(i, j), index(ii, j), 1);
+                }
+                for(var jj = j + 1; jj < w && S[i][jj] == '.'; jj++) {
+                    G.addTwoway(index(i, j), index(i, jj), 1);
+                }
             }
         }
-        out.println(max.cost + 1);
+        out.println(G.dijkstra(index(s[0], s[1]), index(g[0], g[1])).get(index(g[0], g[1])).cost - 1);
+    }
+    int index(int x, int y) {
+        return x * 10000 + y;
     }
 }
 
@@ -349,11 +354,11 @@ public class Main {
             (new Solver()).solve(sc, out);
         } catch (Throwable e) {
             out.println(e);
-            System.exit(1);
-        } finally {
             out.flush();
-            sc.close();
+            System.exit(1);
         }
+        out.flush();
+        sc.close();
     }
 }
 
