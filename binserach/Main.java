@@ -6,31 +6,26 @@ class Solver {
         // https://atcoder.jp/contests/typical-algorithm/tasks/typical_algorithm_d
         int n = sc.nextInt(), k = sc.nextInt();
         var A = sc.nextIntArray(n);
-        var b = new BinSearch(A);
-        var result = b.search(k);
+        var result = search(A, k);
         out.println(result == A.length ? -1 : result);
     }
-}
-
-class BinSearch {
-    int[] target;
-    BinSearch(int[] target) {
-        this.target = target;
-    }
-    boolean isL(int i, int k) {
+    
+    boolean isL(int[] target, int i, int k) {
         return target[i] < k;
     }
-    int search(int k) {
-        int l = - 1, r = target.length;
+    int search(int[] target, int k, int l, int r) {
         while(r - l > 1) {
             int mid = (l + r) / 2;
-            if(isL(mid, k)) {
+            if(isL(target, mid, k)) {
                 l = mid;
             } else {
                 r = mid;
             }
         }
         return r;
+    }
+    int search(int[] target, int k) {
+        return search(target, k , -1, target.length);
     }
 }
 
@@ -43,11 +38,11 @@ public class Main {
             (new Solver()).solve(sc, out);
         } catch (Throwable e) {
             out.println(e);
-            System.exit(1);
-        } finally {
             out.flush();
-            sc.close();
+            System.exit(1);
         }
+        out.flush();
+        sc.close();
     }
 }
 
