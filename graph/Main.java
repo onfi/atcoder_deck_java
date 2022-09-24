@@ -33,6 +33,130 @@ class Solver {
     }
 }
 
+
+class SegmentTree {
+    long[] tree;
+    Long initValue;
+    int size;
+    java.util.function.LongBinaryOperator processingFunction;
+
+    SegmentTree(long[] v, Long initValue, java.util.function.LongBinaryOperator processingFunction) {
+        this.initValue = initValue;
+        this.processingFunction = processingFunction;
+        size = v.length;
+
+        var n = 1;
+        while (n < size) {
+            n <<= 1;
+        }
+
+        tree = new long[2 * n];
+        Arrays.fill(tree, initValue);
+        
+        // 直接値が入るのは、index + (n - 1)
+        for (int i = 0; i < size; i++) {
+            tree[i + n - 1] = v[i];
+        }
+
+        // 親：(i - 1) / 2
+        // 左の子：2 * i + 1
+        // 右の子：左の子 + 1
+        for (int i = n - 2; i >= 0; i--) {
+            updateNode(i);
+        }
+    }
+
+    static SegmentTree RmQ(long[] v) {
+        return new SegmentTree(v, Long.MAX_VALUE, Math::min);
+    }
+
+    static SegmentTree RMQ(long[] v) {
+        return new SegmentTree(v, Long.MIN_VALUE, Math::max);
+    }
+
+    static SegmentTree RSQ(long[] v) {
+        return new SegmentTree(v, 0L, (a,b) -> a + b);
+    }
+
+    static SegmentTree RSQMod(long[] v, int mod) {
+        return new SegmentTree(v, 0L, (a,b) -> (a + b) % mod);
+    }
+
+    // i番目の値をvalに変更する
+    void update(int i, Long val) {
+        i = i + tree.length / 2 - 1;
+        tree[i] = val;
+
+        for (i = (i - 1) / 2; i > 0; i = (i - 1) / 2) {
+            updateNode(i);
+        }
+        updateNode(i);
+    }
+    
+    void updateNode(int i) {
+        tree[i] = processingFunction.applyAsLong(tree[2 * i + 1], tree[2 * i + 2]);
+    }
+
+    Long query(int a, int b) {
+        Long val_left = initValue, val_right = initValue;
+        for (a += (tree.length / 2 - 1), b += (tree.length / 2 - 1); a < b; a >>= 1, b >>= 1) {
+            if ((a & 1) == 0) {
+                val_left = processingFunction.applyAsLong(val_left, tree[a]);
+            }
+            if ((b & 1) == 0) {
+                val_right = processingFunction.applyAsLong(val_right, tree[--b]);
+            }
+        }
+        return processingFunction.applyAsLong(val_left, val_right);
+    }
+}
+
+class MathLib {
+    public static long gcd(long a, long b) {
+        long c = b;
+        b = a;
+        do {
+            a = b;
+            b = c;
+            if (a < b) {
+                long tmp = a;
+                a = b;
+                b = tmp;
+            }
+            if(b == 0) return a;
+            c = a % b;
+        } while (c != 0);
+        return b;
+    }
+
+    public static long lcm(long m, long n) {
+        return m * n / gcd(m, n);
+    }
+
+    public static long sign(long x) {
+        if (x == 0)
+            return 0;
+        if (x < 0)
+            return -1;
+        return 1;
+    }
+
+    public static long sign(double x) {
+        if (x > -0.00001 && x < 0.00001)
+            return 0;
+        if (x < 0)
+            return -1;
+        return 1;
+    }
+
+    public static double radToDeg(double rad) {
+        return rad * 180 / Math.PI;
+    }
+
+    public static double degToRad(double deg) {
+        return deg / 180 * Math.PI;
+    }
+}
 class Edge<K> {
     K to;
     long cost = 1;
@@ -115,6 +239,37 @@ class Route<K> implements Comparable<Route<K>> {
     }
 }
 
+class EulerTour<K extends Comparable<K>> {
+    List<K> tour;
+    List<Long> cost;
+    Map<K, Integer> visitIndex;
+    Map<K, Integer> leaveIndex;
+
+    EulerTour(Map<K, List<Edge<K>>> edges, K root) {
+        tour = new ArrayList<>(edges.size() * 2);
+        cost = new ArrayList<>(edges.size() * 2);
+        visitIndex = new HashMap<>();
+        leaveIndex = new HashMap<>();
+
+        cost.add(Long.MIN_VALUE); // いらないけどIndexを合わせるために足しておく
+        dfs(edges, root, root);
+        cost.add(Long.MIN_VALUE); // いらないけどIndexを合わせるために足しておく
+    }
+    
+    private void dfs(Map<K, List<Edge<K>>> edges, K cur, K parent) {
+        visitIndex.put(cur, tour.size());
+        tour.add(cur);
+        for(var edge : edges.get(cur)) {
+            if(!edge.to.equals(parent)) {
+                cost.add(edge.cost);
+                dfs(edges, edge.to, cur);
+                cost.add(-edge.cost);
+            }
+        }
+        leaveIndex.put(cur, tour.size());
+        tour.add(cur);
+    }
+}
 class Graph<K extends Comparable<K>, V> {
     Map<K, V> nodes = new HashMap<>();
     Map<K, List<Edge<K>>> edges = new HashMap<>();
@@ -337,6 +492,13 @@ class Graph<K extends Comparable<K>, V> {
                 treeSortDfs(edge.to, cur, list);
             }
         }
+    }
+
+    /*
+     * オイラーツアー
+     */
+    public EulerTour<K> eulerTour(K start) {
+        return new EulerTour<>(edges, start);
     }
 }
 
