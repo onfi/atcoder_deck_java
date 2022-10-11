@@ -157,6 +157,15 @@ class FScanner {
         return nextSB().toString();
     }
 
+    public char[] nextCharArray() {
+        StringBuilder sb = nextSB();
+        char[] c = new char[sb.length()];
+        for(int i = 0; i < sb.length(); i++) {
+            c[i] = sb.charAt(i);
+        }
+        return c;
+    }
+
     public StringBuilder nextSB() {
         if (!hasNext())
             throw new NoSuchElementException();

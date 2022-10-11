@@ -4,7 +4,7 @@ import java.io.*;
 class Solver {
     void solve(FScanner sc, FWriter out) {
         // out.enableDebug();
-        char S[] = sc.next().toCharArray(), T[] = sc.next().toCharArray();
+        char S[] = sc.nextCharArray();
         long[] blue = new long[11], red = new long[11];
 
         int j = 0;
@@ -149,6 +149,15 @@ class FScanner {
 
     public String next() {
         return nextSB().toString();
+    }
+
+    public char[] nextCharArray() {
+        StringBuilder sb = nextSB();
+        char[] c = new char[sb.length()];
+        for(int i = 0; i < sb.length(); i++) {
+            c[i] = sb.charAt(i);
+        }
+        return c;
     }
 
     public StringBuilder nextSB() {
