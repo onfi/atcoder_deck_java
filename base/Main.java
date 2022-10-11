@@ -4,12 +4,21 @@ import java.io.*;
 class Solver {
     void solve(FScanner sc, FWriter out) {
         // out.enableDebug();
-        int k = sc.nextInt();
-        if(k % 9 > 0) {
-            out.println(0);
-            return;
+        char S[] = sc.next().toCharArray(), T[] = sc.next().toCharArray();
+        long[] blue = new long[11], red = new long[11];
+
+        int j = 0;
+        for(var i = 0; i < T.length; i++) {
+            if(S[j] != T[i]) {
+                if(j > 1 && S[j - 1] == S[j - 2] && T[i] == S[j - 1]) {
+                    continue;
+                }
+                out.println("No");
+                return;
+            }
+            if(j + 1 < S.length)j++;
         }
-        
+        out.println("Yes");
     }
 }
 
@@ -139,6 +148,10 @@ class FScanner {
     }
 
     public String next() {
+        return nextSB().toString();
+    }
+
+    public StringBuilder nextSB() {
         if (!hasNext())
             throw new NoSuchElementException();
         StringBuilder sb = new StringBuilder();
@@ -147,7 +160,7 @@ class FScanner {
             sb.appendCodePoint(b);
             b = readByte();
         }
-        return sb.toString();
+        return sb;
     }
 
     public int nextInt() {

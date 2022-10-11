@@ -632,6 +632,10 @@ class FScanner {
     }
 
     public String next() {
+        return nextSB().toString();
+    }
+
+    public StringBuilder nextSB() {
         if (!hasNext())
             throw new NoSuchElementException();
         StringBuilder sb = new StringBuilder();
@@ -640,7 +644,7 @@ class FScanner {
             sb.appendCodePoint(b);
             b = readByte();
         }
-        return sb.toString();
+        return sb;
     }
 
     public int nextInt() {
