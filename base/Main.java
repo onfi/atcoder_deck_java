@@ -3,25 +3,20 @@ import java.io.*;
 
 class Solver {
     void solve(FScanner sc, FWriter out) {
-        // out.enableDebug();
+        int n = sc.nextInt(), q =  sc.nextInt();
         char S[] = sc.nextCharArray();
-        long[] blue = new long[11], red = new long[11];
 
-        int j = 0;
-        for(var i = 0; i < T.length; i++) {
-            if(S[j] != T[i]) {
-                if(j > 1 && S[j - 1] == S[j - 2] && T[i] == S[j - 1]) {
-                    continue;
-                }
-                out.println("No");
-                return;
+        int rotate = 0;
+        for(var i = 0; i < q; i++) {
+            int t = sc.nextInt(), x = sc.nextInt();
+            if(t == 1) {
+                rotate += x;
+            } else {
+                out.println(S[(x + rotate) % S.length]);
             }
-            if(j + 1 < S.length)j++;
         }
-        out.println("Yes");
     }
 }
-
 
 // common
 public class Main {
@@ -154,9 +149,7 @@ class FScanner {
     public char[] nextCharArray() {
         StringBuilder sb = nextSB();
         char[] c = new char[sb.length()];
-        for(int i = 0; i < sb.length(); i++) {
-            c[i] = sb.charAt(i);
-        }
+        sb.getChars(0, sb.length(), c, 0);
         return c;
     }
 
@@ -292,8 +285,6 @@ class FWriter {
     int tail = 0;
 
     final byte SP = (byte) ' ', LF = (byte) '\n', HYPHEN = (byte) '-';
-
-    boolean isDebug = false;
 
     FWriter(OutputStream out) {
         this.out = out;
@@ -503,10 +494,6 @@ class FWriter {
         return this;
     }
 
-    void enableDebug() {
-        this.isDebug = true;
-    }
-
     private void _debug(Object o, int indent) {
         if(o == null) {
             for(var i = 0; i < indent; i++) print(' ');
@@ -541,7 +528,6 @@ class FWriter {
     }
 
     FWriter debug(Object... os) {
-        if(!isDebug) return this;
         print("[DEBUG:").print(Thread.currentThread().getStackTrace()[2].getLineNumber()).print("]:  ");
         for(var o : os) {
             _debug(o, 0);
