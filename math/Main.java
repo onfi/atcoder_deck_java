@@ -1,27 +1,19 @@
 import java.util.*;
 import java.io.*;
+import java.math.*;
 
 class Solver {
     void solve(FScanner sc, FWriter out) {
-        XY[] xy = new XY[4];
-        for (var i = 0; i < 4; i++) {
-            xy[i] = new XY(sc.nextLong(), sc.nextLong());
-        }
+        long n = sc.nextLong(), a = sc.nextLong(), b = sc.nextLong();
+        BigInteger bn = BigInteger.valueOf(n), ba = BigInteger.valueOf(a), bb = BigInteger.valueOf(b);
+        BigInteger bab = MathLib.lcm(ba, bb);
+    
+        BigInteger total = MathLib.arithmeticProgression2(1, n, n);
+        BigInteger fizz = MathLib.arithmeticProgression(ba, bn.divide(ba), ba);
+        BigInteger buzz = MathLib.arithmeticProgression(bb, bn.divide(bb), bb);
+        BigInteger fizzbuzz = MathLib.arithmeticProgression(bab, bn.divide(bab), bab);
 
-        for (var i = 0; i < 4; i++) {
-            var s1 = xy[i].deg(i == 0 ? xy[3] : xy[i - 1]);
-            var s2 = xy[i].deg(i == 3 ? xy[0] : xy[i + 1]);
-            var tmp = (s1 - s2) % 360;
-            if (tmp < 0)
-                tmp = 360 + tmp;
-            // out.println(tmp);
-            if (tmp > 180) {
-                out.println("No");
-                return;
-            }
-        }
-
-        out.println("Yes");
+        out.println(total.subtract(fizz).subtract(buzz).add(fizzbuzz));
     }
 }
 
@@ -83,11 +75,11 @@ class MathLib {
         return m * n / gcd(m, n);
     }
 
-    public static java.math.BigInteger gcd(java.math.BigInteger a, java.math.BigInteger b) {
+    public static BigInteger gcd(BigInteger a, BigInteger b) {
         return a.gcd(b);
     }
 
-    public static java.math.BigInteger lcm(java.math.BigInteger m, java.math.BigInteger n) {
+    public static BigInteger lcm(BigInteger m, BigInteger n) {
         return m.multiply(n).divide(gcd(m, n));
     }
 
@@ -113,6 +105,16 @@ class MathLib {
 
     public static double degToRad(double deg) {
         return deg / 180 * Math.PI;
+    }
+
+    // 等差数列の和
+    // 初項a, 項数n, 公差d
+    public static BigInteger arithmeticProgression(BigInteger a, BigInteger n, BigInteger d) {
+        return (BigInteger.TWO.multiply(a).add(n.subtract(BigInteger.ONE).multiply(d))).multiply(n).divide(BigInteger.TWO);
+    }
+    // 初項a, 末項l, 項数n
+    public static BigInteger arithmeticProgression2(long a, long l, long n) {
+        return (BigInteger.valueOf(a).add(BigInteger.valueOf(l))).multiply(BigInteger.valueOf(n)).divide(BigInteger.TWO);
     }
 }
 
