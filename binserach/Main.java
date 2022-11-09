@@ -1,5 +1,6 @@
 import java.util.*;
 import java.io.*;
+import java.math.*;
 
 class Solver {
     void solve(FScanner sc, FWriter out) {
@@ -160,9 +161,7 @@ class FScanner {
     public char[] nextCharArray() {
         StringBuilder sb = nextSB();
         char[] c = new char[sb.length()];
-        for(int i = 0; i < sb.length(); i++) {
-            c[i] = sb.charAt(i);
-        }
+        sb.getChars(0, sb.length(), c, 0);
         return c;
     }
 
@@ -298,8 +297,6 @@ class FWriter {
     int tail = 0;
 
     final byte SP = (byte) ' ', LF = (byte) '\n', HYPHEN = (byte) '-';
-
-    boolean isDebug = false;
 
     FWriter(OutputStream out) {
         this.out = out;
@@ -509,10 +506,6 @@ class FWriter {
         return this;
     }
 
-    void enableDebug() {
-        this.isDebug = true;
-    }
-
     private void _debug(Object o, int indent) {
         if(o == null) {
             for(var i = 0; i < indent; i++) print(' ');
@@ -547,7 +540,6 @@ class FWriter {
     }
 
     FWriter debug(Object... os) {
-        if(!isDebug) return this;
         print("[DEBUG:").print(Thread.currentThread().getStackTrace()[2].getLineNumber()).print("]:  ");
         for(var o : os) {
             _debug(o, 0);
