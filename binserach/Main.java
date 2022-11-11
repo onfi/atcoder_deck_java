@@ -1,32 +1,32 @@
 import java.util.*;
 import java.io.*;
 import java.math.*;
-
 class Solver {
     void solve(FScanner sc, FWriter out) {
-        // https://atcoder.jp/contests/typical-algorithm/tasks/typical_algorithm_d
-        int n = sc.nextInt(), k = sc.nextInt();
-        var A = sc.nextIntArray(n);
-        var result = search(A, k);
-        out.println(result == A.length ? -1 : result);
+        int n = sc.nextInt();
+        int A[] = sc.nextIntArray(n);
+        
+        long result = 0;
+        Arrays.sort(A);
+        for(var i = 0; i < n; i++) {
+            var cur = A[i];
+            long l = search(-1, A.length, (index) -> A[index] < cur) + 1;
+            long r = A.length - search(-1, A.length, (index) -> A[index] > cur) - 1;
+            result += l * r;
+        }
+        out.println(result);
     }
-    
-    boolean isL(int[] target, int i, int k) {
-        return target[i] < k;
-    }
-    int search(int[] target, int k, int l, int r) {
+ 
+    int search(int l, int r, java.util.function.IntPredicate func) {
         while(r - l > 1) {
             int mid = (l + r) / 2;
-            if(isL(target, mid, k)) {
+            if(func.test(mid)) {
                 l = mid;
             } else {
                 r = mid;
             }
         }
-        return r;
-    }
-    int search(int[] target, int k) {
-        return search(target, k , -1, target.length);
+        return l;
     }
 }
 
