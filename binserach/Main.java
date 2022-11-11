@@ -1,32 +1,33 @@
 import java.util.*;
 import java.io.*;
 import java.math.*;
+
 class Solver {
     void solve(FScanner sc, FWriter out) {
         int n = sc.nextInt();
         int A[] = sc.nextIntArray(n);
-        
+
         long result = 0;
         Arrays.sort(A);
-        for(var i = 0; i < n; i++) {
+        for (var i = 0; i < n; i++) {
             var cur = A[i];
-            long l = search(-1, A.length, (index) -> A[index] < cur) + 1;
-            long r = A.length - search(-1, A.length, (index) -> A[index] > cur) - 1;
+            long l = search(-1, A.length, (index) -> A[index] < cur);
+            long r = A.length - search(-1, A.length, (index) -> A[index] <= cur);
             result += l * r;
         }
         out.println(result);
     }
- 
+
     int search(int l, int r, java.util.function.IntPredicate func) {
-        while(r - l > 1) {
+        while (r - l > 1) {
             int mid = (l + r) / 2;
-            if(func.test(mid)) {
+            if (func.test(mid)) {
                 l = mid;
             } else {
                 r = mid;
             }
         }
-        return l;
+        return r;
     }
 }
 
@@ -507,41 +508,46 @@ class FWriter {
     }
 
     private void _debug(Object o, int indent) {
-        if(o == null) {
-            for(var i = 0; i < indent; i++) print(' ');
+        if (o == null) {
+            for (var i = 0; i < indent; i++)
+                print(' ');
             print("null");
-        } else if(o.getClass().isArray()) {
-            for(int i = 0; i < java.lang.reflect.Array.getLength(o); i++) {
+        } else if (o.getClass().isArray()) {
+            for (int i = 0; i < java.lang.reflect.Array.getLength(o); i++) {
                 println();
                 _debug(java.lang.reflect.Array.get(o, i), indent + 2);
             }
             return;
-        } else if(o instanceof Collection) {
-            for(var item : (Collection<?>)o) {
+        } else if (o instanceof Collection) {
+            for (var item : (Collection<?>) o) {
                 println();
                 _debug(item, indent + 2);
             }
-        } else if(o instanceof Map) {
-            for(var i = 0; i < indent; i++) print(' ');
+        } else if (o instanceof Map) {
+            for (var i = 0; i < indent; i++)
+                print(' ');
             println('{');
-            for(var entry : ((Map<?,?>)o).entrySet()) {
-                for(var i = 0; i < indent + 2; i++) print(' ');
+            for (var entry : ((Map<?, ?>) o).entrySet()) {
+                for (var i = 0; i < indent + 2; i++)
+                    print(' ');
                 _debug(entry.getKey(), 0);
                 _debug("  ", 0);
                 _debug(entry.getValue(), 0);
                 println();
             }
-            for(var i = 0; i < indent; i++) print(' ');
+            for (var i = 0; i < indent; i++)
+                print(' ');
             println('}');
             return;
         }
-        for(var i = 0; i < indent; i++) print(' ');
+        for (var i = 0; i < indent; i++)
+            print(' ');
         print(o);
     }
 
     FWriter debug(Object... os) {
         print("[DEBUG:").print(Thread.currentThread().getStackTrace()[2].getLineNumber()).print("]:  ");
-        for(var o : os) {
+        for (var o : os) {
             _debug(o, 0);
             print(' ');
         }
