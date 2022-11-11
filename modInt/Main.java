@@ -761,41 +761,46 @@ class FWriter {
     }
 
     private void _debug(Object o, int indent) {
-        if(o == null) {
-            for(var i = 0; i < indent; i++) print(' ');
+        if (o == null) {
+            for (var i = 0; i < indent; i++)
+                print(' ');
             print("null");
-        } else if(o.getClass().isArray()) {
-            for(int i = 0; i < java.lang.reflect.Array.getLength(o); i++) {
+        } else if (o.getClass().isArray()) {
+            for (int i = 0; i < java.lang.reflect.Array.getLength(o); i++) {
                 println();
                 _debug(java.lang.reflect.Array.get(o, i), indent + 2);
             }
             return;
-        } else if(o instanceof Collection) {
-            for(var item : (Collection<?>)o) {
+        } else if (o instanceof Collection) {
+            for (var item : (Collection<?>) o) {
                 println();
                 _debug(item, indent + 2);
             }
-        } else if(o instanceof Map) {
-            for(var i = 0; i < indent; i++) print(' ');
+        } else if (o instanceof Map) {
+            for (var i = 0; i < indent; i++)
+                print(' ');
             println('{');
-            for(var entry : ((Map<?,?>)o).entrySet()) {
-                for(var i = 0; i < indent + 2; i++) print(' ');
+            for (var entry : ((Map<?, ?>) o).entrySet()) {
+                for (var i = 0; i < indent + 2; i++)
+                    print(' ');
                 _debug(entry.getKey(), 0);
                 _debug("  ", 0);
                 _debug(entry.getValue(), 0);
                 println();
             }
-            for(var i = 0; i < indent; i++) print(' ');
+            for (var i = 0; i < indent; i++)
+                print(' ');
             println('}');
             return;
         }
-        for(var i = 0; i < indent; i++) print(' ');
+        for (var i = 0; i < indent; i++)
+            print(' ');
         print(o);
     }
 
     FWriter debug(Object... os) {
         print("[DEBUG:").print(Thread.currentThread().getStackTrace()[2].getLineNumber()).print("]:  ");
-        for(var o : os) {
+        for (var o : os) {
             _debug(o, 0);
             print(' ');
         }
