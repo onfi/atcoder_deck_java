@@ -48,6 +48,20 @@ public class Main {
     }
 }
 
+class Bsearch {
+    static int search(int l, int r, java.util.function.IntPredicate func) {
+        while (r - l > 1) {
+            int mid = (l + r) / 2;
+            if (func.test(mid)) {
+                l = mid;
+            } else {
+                r = mid;
+            }
+        }
+        return r;
+    }
+}
+
 class TwoKeyMap<K, V> {
     Map<K, Map<K, V>> map = new HashMap<>();
     Set<K> _key2Set = new HashSet<>();
