@@ -4,33 +4,36 @@ import java.math.*;
 
 class Solver {
     void solve(FScanner sc, FWriter out) {
-        long n = sc.nextLong();
-        long result = 0;
-        List<Integer> 
+        int n = sc.nextInt(), m = sc.nextInt();
+        UnionFind unionFind = new UnionFind(n + 1);
+ 
+        for(var i = 0; i < m; i++) {
+            int u = sc.nextInt(), v = sc.nextInt();
+            unionFind.unite(u, v);
+        }
+        for(var i = 1; i <= n; i++) {
+            if(unionFind.root(i) == i) {
+            }
+        }
+        out.println("Yes");
     }
 }
 
 class UnionFind {
-    public int[] parents, counts, score;
+    public int[] parents, counts;
 
     public UnionFind(int length) {
         this.parents = new int[length];
         this.counts = new int[length];
-        this.score = new int[length];
         for (int i = 0; i < length; i++) {
             parents[i] = i;
         }
         Arrays.fill(counts, 1);
     }
 
-    public int add(int x, int score) {
-        this.score[root(x)] += score;
-        return this.score[root(x)];
-    }
-
     public int root(int x) {
         int parent = parents[x];
-        if(parent == x) return x;
+        if(parent == parents[parent]) return parent;
         return parents[x] = root(parent);
     }
 
@@ -40,7 +43,6 @@ class UnionFind {
         if (rootX == rootY)
             return;
         counts[rootY] += counts[rootX];
-        score[rootY] += score[rootX];
         parents[rootX] = rootY;
     }
 
