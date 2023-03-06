@@ -4,22 +4,28 @@ import java.math.*;
 
 class Solver {
     void solve(FScanner sc, FWriter out) {
-        int n = sc.nextInt(), q =  sc.nextInt();
-        char S[] = sc.nextCharArray();
-
-        int rotate = 0;
-        for(var i = 0; i < q; i++) {
-            int t = sc.nextInt(), x = sc.nextInt();
-            if(t == 1) {
-                rotate += x;
+        int n = sc.nextInt(), m = sc.nextInt();
+        Set<Integer> A = new HashSet<>();
+        for (var i = 0; i < m; i++) {
+            A.add(sc.nextInt());
+        }
+        LinkedList<Integer> list = new LinkedList<>();
+        List<Integer> result = new ArrayList<>(n);
+        for (var i = 1; i <= n; i++) {
+            if (A.contains(i)) {
+                list.addFirst(i);
             } else {
-                out.println(S[(x + rotate) % S.length]);
+                result.add(i);
+                result.addAll(list);
+                list.clear();
             }
         }
+        out.println(result);
     }
 }
 
 // common
+
 public class Main {
     public static void main(String[] args) {
         FScanner sc = new FScanner(System.in);
@@ -494,6 +500,26 @@ class FWriter {
 
     FWriter println(Object o) {
         print(o);
+        println();
+        return this;
+    }
+
+    FWriter print(List<?> i) {
+        if (i != null) {
+            boolean space = false;
+            for (var o : i) {
+                if (space) {
+                    print(' ');
+                }
+                print(o);
+                space = true;
+            }
+        }
+        return this;
+    }
+
+    FWriter println(List<?> i) {
+        print(i);
         println();
         return this;
     }

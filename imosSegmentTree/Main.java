@@ -205,6 +205,7 @@ class MathLib {
 }
 
 // common
+
 public class Main {
     public static void main(String[] args) {
         FScanner sc = new FScanner(System.in);
@@ -679,6 +680,26 @@ class FWriter {
 
     FWriter println(Object o) {
         print(o);
+        println();
+        return this;
+    }
+
+    FWriter print(List<?> i) {
+        if (i != null) {
+            boolean space = false;
+            for (var o : i) {
+                if (space) {
+                    print(' ');
+                }
+                print(o);
+                space = true;
+            }
+        }
+        return this;
+    }
+
+    FWriter println(List<?> i) {
+        print(i);
         println();
         return this;
     }
