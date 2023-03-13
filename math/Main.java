@@ -5,16 +5,11 @@ import java.math.*;
 
 class Solver {
     void solve(FScanner sc, FWriter out) {
-        long n = sc.nextLong(), a = sc.nextLong(), b = sc.nextLong();
-        BigInteger bn = BigInteger.valueOf(n), ba = BigInteger.valueOf(a), bb = BigInteger.valueOf(b);
-        BigInteger bab = MathLib.lcm(ba, bb);
-    
-        BigInteger total = MathLib.arithmeticProgression2(1, n, n);
-        BigInteger fizz = MathLib.arithmeticProgression(ba, bn.divide(ba), ba);
-        BigInteger buzz = MathLib.arithmeticProgression(bb, bn.divide(bb), bb);
-        BigInteger fizzbuzz = MathLib.arithmeticProgression(bab, bn.divide(bab), bab);
-
-        out.println(total.subtract(fizz).subtract(buzz).add(fizzbuzz));
+        // https://atcoder.jp/contests/abc293/tasks/abc293_e
+        long a = sc.nextLong(), x = sc.nextLong(), m = sc.nextLong();
+        long[][] f = { { a, 1L }, { 0L, 1L } };
+        long[][] g = MathLib.powMatlix(f, x, m);
+        out.println(g[0][1]);
     }
 }
 
@@ -66,7 +61,8 @@ class MathLib {
                 a = b;
                 b = tmp;
             }
-            if(b == 0) return a;
+            if (b == 0)
+                return a;
             c = a % b;
         } while (c != 0);
         return b;
@@ -111,11 +107,52 @@ class MathLib {
     // 等差数列の和
     // 初項a, 項数n, 公差d
     public static BigInteger arithmeticProgression(BigInteger a, BigInteger n, BigInteger d) {
-        return (BigInteger.TWO.multiply(a).add(n.subtract(BigInteger.ONE).multiply(d))).multiply(n).divide(BigInteger.TWO);
+        return (BigInteger.TWO.multiply(a).add(n.subtract(BigInteger.ONE).multiply(d))).multiply(n)
+                .divide(BigInteger.TWO);
     }
+
     // 初項a, 末項l, 項数n
     public static BigInteger arithmeticProgression2(long a, long l, long n) {
-        return (BigInteger.valueOf(a).add(BigInteger.valueOf(l))).multiply(BigInteger.valueOf(n)).divide(BigInteger.TWO);
+        return (BigInteger.valueOf(a).add(BigInteger.valueOf(l))).multiply(BigInteger.valueOf(n))
+                .divide(BigInteger.TWO);
+    }
+
+    // 行列乗算
+    static long[][] mulMatlix(long[][] a, long[][] b) {
+        return mulMatlix(a, b, Long.MAX_VALUE);
+    }
+
+    static long[][] mulMatlix(long[][] a, long[][] b, long mod) {
+        int n = a.length;
+        long[][] res = new long[n][n];
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < n; j++) {
+                for (int k = 0; k < n; k++) {
+                    res[i][j] += a[i][k] * b[k][j];
+                    res[i][j] %= mod;
+                }
+            }
+        }
+        return res;
+    }
+
+    // 行列累乗
+    static long[][] powMatlix(long[][] a, long b) {
+        return powMatlix(a, b, Long.MAX_VALUE);
+    }
+
+    static long[][] powMatlix(long[][] a, long b, long mod) {
+        int n = a.length;
+        long[][] res = new long[n][n];
+        for (int i = 0; i < n; i++)
+            res[i][i] = 1;
+        while (b > 0) {
+            if ((b & 1) > 0)
+                res = mulMatlix(res, a, mod);
+            a = mulMatlix(a, a, mod);
+            b >>= 1;
+        }
+        return res;
     }
 }
 
