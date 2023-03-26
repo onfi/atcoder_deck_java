@@ -1,15 +1,24 @@
 import java.util.*;
 import java.io.*;
 import java.math.*;
-import java.math.*;
 
 class Solver {
     void solve(FScanner sc, FWriter out) {
-        // https://atcoder.jp/contests/abc293/tasks/abc293_e
-        long a = sc.nextLong(), x = sc.nextLong(), m = sc.nextLong();
-        long[][] f = { { a, 1L }, { 0L, 1L } };
-        long[][] g = MathLib.powMatlix(f, x, m);
-        out.println(g[0][1]);
+        char[] S = sc.nextCharArray();
+        BitSet combinations = new BitSet(10);
+        Map<BitSet, Integer> map = new HashMap<>();
+        map.merge((BitSet) combinations.clone(), 1, (a, b) -> a + b);
+
+        for (var i = 0; i < S.length; i++) {
+            combinations.set(S[i] - '0', !combinations.get(S[i] - '0'));
+            map.merge((BitSet) combinations.clone(), 1, (a, b) -> a + b);
+        }
+
+        long result = 0;
+        for (var cnt : map.values()) {
+            result += MathLib.combinationAsLong(cnt, 2);
+        }
+        out.println(result);
     }
 }
 
@@ -50,6 +59,87 @@ class XY {
 }
 
 class MathLib {
+    static List<BigInteger> memoFactrial = new ArrayList<>(Arrays.asList(BigInteger.ONE));
+
+    public static BigInteger factrial(int n) {
+        for (int i = memoFactrial.size(); i <= n; i++) {
+            memoFactrial.add(memoFactrial.get(i - 1).multiply(BigInteger.valueOf(i)));
+        }
+        return memoFactrial.get(n);
+    }
+
+    public static long factrialAsLong(int n) {
+        return factrial(n).longValue();
+    }
+
+    static Map<Integer, List<BigInteger>> memoConbination = new TreeMap<>();
+
+    public static BigInteger combination(int n, int r) {
+        if (n < 1 || r < 1 || n < r)
+            return BigInteger.ZERO;
+
+        if (n == r)
+            return BigInteger.ONE;
+
+        // nが小さい場合は公式を使う
+        if (n < 51000)
+            return factrial(n).divide(factrial(r).multiply(factrial(n - r)));
+
+        // nCr = nC(n - r)、計算量が少ない方を選ぶ
+        if (r > n - r)
+            r = n - r;
+        List<BigInteger> result;
+        if (!memoConbination.containsKey(n)) {
+            // 初期値はnC0 = 0, nC1 = n
+            result = new ArrayList<>(Arrays.asList(BigInteger.ZERO, BigInteger.valueOf(n)));
+            memoConbination.put(n, result);
+        } else {
+            result = memoConbination.get(n);
+        }
+        for (int i = result.size(); i <= r; i++) {
+            // nC(r) = nC(r - 1) * (n - r + 1) / r
+            result.add(result.get(i - 1).multiply(BigInteger.valueOf(n - i + 1)).divide(BigInteger.valueOf(i)));
+        }
+        return result.get(r);
+    }
+
+    public static long permutationsAsLong(int n, int r) {
+        return permutations(n, r).longValue();
+    }
+
+    static Map<Integer, List<BigInteger>> memoPermutations = new TreeMap<>();
+
+    public static BigInteger permutations(int n, int r) {
+        if (n < 1 || r < 1 || n < r)
+            return BigInteger.ZERO;
+
+        if (n == r)
+            return BigInteger.ONE;
+
+        // nが小さい場合は公式を使う
+        if (n < 51000)
+            return factrial(n).divide(factrial(n - r));
+
+        if (r > n - r)
+            r = n - r;
+        List<BigInteger> result;
+        if (!memoPermutations.containsKey(n)) {
+            // 初期値はnC0 = 0, nC1 = n
+            result = new ArrayList<>(Arrays.asList(BigInteger.ZERO, BigInteger.valueOf(n)));
+            memoPermutations.put(n, result);
+        } else {
+            result = memoPermutations.get(n);
+        }
+        for (int i = result.size(); i <= r; i++) {
+            result.add(result.get(i - 1).multiply(BigInteger.valueOf(n - i + 1)));
+        }
+        return result.get(r);
+    }
+
+    public static long combinationAsLong(int n, int r) {
+        return combination(n, r).longValue();
+    }
+
     public static long gcd(long a, long b) {
         long c = b;
         b = a;
